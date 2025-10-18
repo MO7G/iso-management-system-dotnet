@@ -1,0 +1,21 @@
+﻿services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: iso-management-system-sqlserver-db
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Passwor@1"
+    ports:
+      - "1440:1433"
+    volumes:
+      - iso_management_system_sqlserver_data:/var/opt/mssql
+    networks:
+      - iso_management_system_network
+
+volumes:
+  iso_management_system_sqlserver_data:
+
+networks:
+  iso_management_system_network:
+    driver: bridge

@@ -5193,19 +5193,19 @@
     ]
   },
   "packageFolders": {
-    "/home/yohajji/.nuget/packages/": {}
+    "/Users/yohajji/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/yohajji/working/iso-management-system/iso-management-system/iso-management-system.csproj",
+      "projectUniqueName": "/Users/yohajji/working/iso-management-system-dotnet/iso-management-system/iso-management-system.csproj",
       "projectName": "iso-management-system",
-      "projectPath": "/home/yohajji/working/iso-management-system/iso-management-system/iso-management-system.csproj",
-      "packagesPath": "/home/yohajji/.nuget/packages/",
-      "outputPath": "/home/yohajji/working/iso-management-system/iso-management-system/obj/",
+      "projectPath": "/Users/yohajji/working/iso-management-system-dotnet/iso-management-system/iso-management-system.csproj",
+      "packagesPath": "/Users/yohajji/.nuget/packages/",
+      "outputPath": "/Users/yohajji/working/iso-management-system-dotnet/iso-management-system/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/yohajji/.nuget/NuGet/NuGet.Config"
+        "/Users/yohajji/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -5228,7 +5228,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -5276,7 +5277,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/home/yohajji/.dotnet/sdk/8.0.415/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/Users/yohajji/.dotnet/sdk/9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

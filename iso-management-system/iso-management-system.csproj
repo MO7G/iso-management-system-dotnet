@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>iso_management_system</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,10 +20,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controller\" />
       <Folder Include="Exceptions\" />
-      <Folder Include="Models\Configurations\" />
-      <Folder Include="Repositories\" />
-      <Folder Include="Service\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 </Project>
