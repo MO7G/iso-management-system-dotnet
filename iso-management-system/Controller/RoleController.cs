@@ -1,10 +1,13 @@
+using iso_management_system.Attributes;
 using iso_management_system.DTOs;
 using iso_management_system.Services;
+using iso_management_system.Shared; // <-- for ApiResponseWrapper
 using Microsoft.AspNetCore.Mvc;
 
 namespace iso_management_system.Controllers;
 
 [ApiController]
+[ValidateModel]
 [Route("api/[controller]")]
 public class RoleController : ControllerBase
 {
@@ -17,58 +20,87 @@ public class RoleController : ControllerBase
     [HttpGet("roles")]
     public IActionResult GetRoles()
     {
-        Console.WriteLine("Hello world");
-        var roles = _roleService.getAllRoles();
-        return Ok(roles);
+        IEnumerable<RoleResponseDTO> roles = _roleService.getAllRoles();
+        var response = new ApiResponseWrapper<IEnumerable<RoleResponseDTO>>(
+            200,
+            "Roles fetched successfully",
+            roles
+        );
+        return Ok(response);
     }
-    
-    
+
     [HttpGet("{roleId}")]
-    public IActionResult GetRolePermissions(int roleId)
+    public IActionResult GetRoleByID(int roleId)
     {
-        
-        Console.WriteLine("Hello world from get role by id !!");
-        RoleResponseDTO role = _roleService.GetRoleById(roleId);
+        var role = _roleService.GetRoleById(roleId);
         if (role == null)
-            return NotFound($"No role found with ID {roleId}");
-        //  var permissions = role.RolePermissionMappings.Select(rp => rp.Permission);
-        return Ok(role);
+        {
+            var errorResponse = new ApiResponseWrapper<object>(
+                404,
+                $"No role found with ID {roleId}"
+            );
+            return NotFound(errorResponse);
+        }
+
+        var response = new ApiResponseWrapper<RoleResponseDTO>(
+            200,
+            "Role fetched successfully",
+            role
+        );
+        return Ok(response);
     }
-    
-    
+
     [HttpPost("create")]
     public IActionResult CreateRole([FromBody] RoleRequestDTO roleRequest)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState); // Returns all validation errors
-        }
+        // if (!ModelState.IsValid)
+        // {
+        //     var errors = ModelState.ToDictionary(
+        //         kvp => kvp.Key,
+        //         kvp => string.Join(", ", kvp.Value.Errors.Select(e => e.ErrorMessage))
+        //     );
+        //
+        //     var errorResponse = new ApiResponseWrapper<Dictionary<string, string>>(
+        //         400,
+        //         "Validation failed",
+        //         errors
+        //     );
+        //     return BadRequest(errorResponse);
+        // }
 
         var createdRole = _roleService.CreateRole(roleRequest);
+        var response = new ApiResponseWrapper<RoleResponseDTO>(
+            201,
+            "Role created successfully",
+            createdRole
+        );
 
-        return CreatedAtAction(nameof(GetRolePermissions),
+        return CreatedAtAction(nameof(GetRoleByID),
             new { roleId = createdRole.Id },
-            createdRole);
+            response);
     }
-    
-    
+
     [HttpDelete("delete/{roleId}")]
     public IActionResult DeleteRole(int roleId)
     {
         try
         {
             _roleService.DeleteRole(roleId);
-            return NoContent();
+            var response = new ApiResponseWrapper<object>(
+                204,
+                "Role deleted successfully"
+            );
+            return NoContent(); // NoContent does not allow a body, so you can skip the wrapper here
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(ex.Message);
+            var errorResponse = new ApiResponseWrapper<object>(404, ex.Message);
+            return NotFound(errorResponse);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ex.Message);
+            var errorResponse = new ApiResponseWrapper<object>(400, ex.Message);
+            return BadRequest(errorResponse);
         }
     }
-    
-    
 }

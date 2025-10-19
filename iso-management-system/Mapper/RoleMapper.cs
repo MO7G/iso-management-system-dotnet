@@ -14,6 +14,7 @@ namespace iso_management_system.Mappers
             {
                 Id = role.RoleID,
                 Name = role.RoleName,
+                Description = role.Description,
                 Permissions = role.RolePermissionMappings
                     .Select(rp => PermissionMapper.ToResponseDTO(rp.Permission))
                     .ToList()

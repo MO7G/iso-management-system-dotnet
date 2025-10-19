@@ -17,10 +17,17 @@ public class RoleService
     }
     
     
-    public IEnumerable<Role> getAllRoles()
+    public IEnumerable<RoleResponseDTO> getAllRoles()
     {
         Console.WriteLine("Get all roles");
-        return _roleRepository.GetAllRoles();
+
+        // Get all Role entities from the repository
+        IEnumerable<Role> roles = _roleRepository.GetAllRoles();
+        
+        // Use the mapper to convert each Role to RoleResponseDTO
+        var roleDTOs = roles.Select(RoleMapper.ToResponseDTO);
+
+        return roleDTOs;
     }
     
     

@@ -1,8 +1,10 @@
 using iso_management_system.Configurations.Db;
 using iso_management_system.Extensions;
+using iso_management_system.Middleware;
 using iso_management_system.Repositories.Implementations;
 using iso_management_system.Repositories.Interfaces;
 using iso_management_system.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,13 @@ builder.Services.AddApplicationServices();
 // Add controllers
 builder.Services.AddControllers();
 
+// Disable automatic 400 for model validation
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+
 // Add Swagger/OpenAPI support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -30,6 +39,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Add global exception middleware
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
