@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("iso-management-system")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d0c63c6ad74f2e293347e1c44f4ecbf5871df9bb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6d6511cfdcbef50d223f35eb815d756c6d04c4cc")]
 [assembly: System.Reflection.AssemblyProductAttribute("iso-management-system")]
 [assembly: System.Reflection.AssemblyTitleAttribute("iso-management-system")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,5 +1,6 @@
 using iso_management_system.Configurations.Db;
 using iso_management_system.DTOs;
+using iso_management_system.Exceptions;
 using iso_management_system.Mappers;
 using iso_management_system.Models;
 using iso_management_system.Repositories.Interfaces;
@@ -34,12 +35,22 @@ public class RoleService
     public RoleResponseDTO GetRoleById(int roleId)
     {
         var role = _roleRepository.GetRoleById(roleId);
+
+        if (role == null)
+            throw new NotFoundException($"Role with ID {roleId} not found."); // use existing exception
+
         return RoleMapper.ToResponseDTO(role);
     }
+
     
     
     public RoleResponseDTO CreateRole(RoleRequestDTO roleRequest)
-    {
+    {   
+        bool roleNameExists = _roleRepository.RoleNameExists(roleRequest.RoleName);
+        if (roleNameExists)
+        {
+            throw new BusinessRuleException("Role with name already exists.");
+        }
         var role = RoleMapper.ToEntity(roleRequest); // Map DTO → entity
         _roleRepository.AddRole(role);               // Save to DB
         return RoleMapper.ToResponseDTO(role);       // Map entity → response DTO
@@ -50,12 +61,16 @@ public class RoleService
     {
         var role = _roleRepository.GetRoleById(roleId);
         if (role == null)
-            throw new KeyNotFoundException($"Role with ID {roleId} not found.");
+            throw new NotFoundException($"Role with ID {roleId} not found.");
 
         // Business rule: cannot delete role assigned to users
-        if (role.UserRoleAssignments != null && role.UserRoleAssignments.Any())
-            throw new InvalidOperationException("Cannot delete role because it is assigned to one or more users.");
-        
+        if (role.UserRoleAssignments.Any())
+        {
+            Console.WriteLine("Delete role assignments not working");
+            throw new BusinessRuleException("Cannot delete role because it is assigned to users.");
+
+        }
+
         _roleRepository.DeleteRole(role);
     }
 

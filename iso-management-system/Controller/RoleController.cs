@@ -1,7 +1,9 @@
 using iso_management_system.Attributes;
+using iso_management_system.Constants;
 using iso_management_system.DTOs;
+using iso_management_system.Helpers;
 using iso_management_system.Services;
-using iso_management_system.Shared; // <-- for ApiResponseWrapper
+using iso_management_system.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace iso_management_system.Controllers;
@@ -12,95 +14,54 @@ namespace iso_management_system.Controllers;
 public class RoleController : ControllerBase
 {
     private readonly RoleService _roleService;
+
     public RoleController(RoleService roleService)
     {
         _roleService = roleService;
     }
 
+    
+    
+    // get all roles
     [HttpGet("roles")]
-    public IActionResult GetRoles()
+    public ActionResult<ApiResponseWrapper<IEnumerable<RoleResponseDTO>>> GetRoles()
     {
-        IEnumerable<RoleResponseDTO> roles = _roleService.getAllRoles();
-        var response = new ApiResponseWrapper<IEnumerable<RoleResponseDTO>>(
-            200,
-            "Roles fetched successfully",
-            roles
-        );
-        return Ok(response);
+        var roles = _roleService.getAllRoles();
+        return Ok(ApiResponse.Ok(roles, "Roles fetched successfully"));
     }
 
+    
+    
+    // get role by id 
     [HttpGet("{roleId}")]
-    public IActionResult GetRoleByID(int roleId)
+    public ActionResult<ApiResponseWrapper<RoleResponseDTO>> GetRoleById(int roleId)
     {
-        var role = _roleService.GetRoleById(roleId);
-        if (role == null)
-        {
-            var errorResponse = new ApiResponseWrapper<object>(
-                404,
-                $"No role found with ID {roleId}"
-            );
-            return NotFound(errorResponse);
-        }
-
-        var response = new ApiResponseWrapper<RoleResponseDTO>(
-            200,
-            "Role fetched successfully",
-            role
-        );
-        return Ok(response);
+        var role = _roleService.GetRoleById(roleId); // throws NotFoundException if not found
+        return Ok(ApiResponse.Ok(role, "Role fetched successfully"));
     }
 
+    
+    
+    // create a role
     [HttpPost("create")]
-    public IActionResult CreateRole([FromBody] RoleRequestDTO roleRequest)
+    public ActionResult<ApiResponseWrapper<RoleResponseDTO>> CreateRole([FromBody] RoleRequestDTO roleRequest)
     {
-        // if (!ModelState.IsValid)
-        // {
-        //     var errors = ModelState.ToDictionary(
-        //         kvp => kvp.Key,
-        //         kvp => string.Join(", ", kvp.Value.Errors.Select(e => e.ErrorMessage))
-        //     );
-        //
-        //     var errorResponse = new ApiResponseWrapper<Dictionary<string, string>>(
-        //         400,
-        //         "Validation failed",
-        //         errors
-        //     );
-        //     return BadRequest(errorResponse);
-        // }
-
         var createdRole = _roleService.CreateRole(roleRequest);
-        var response = new ApiResponseWrapper<RoleResponseDTO>(
-            201,
-            "Role created successfully",
-            createdRole
-        );
-
-        return CreatedAtAction(nameof(GetRoleByID),
+        
+        return CreatedAtAction(
+            nameof(GetRoleById),
             new { roleId = createdRole.Id },
-            response);
+            ApiResponse.Created(createdRole, "Role created successfully")
+        );
     }
 
+    
+    
+    // delete a role
     [HttpDelete("delete/{roleId}")]
-    public IActionResult DeleteRole(int roleId)
+    public ActionResult<ApiResponseWrapper<object>> DeleteRole(int roleId)
     {
-        try
-        {
-            _roleService.DeleteRole(roleId);
-            var response = new ApiResponseWrapper<object>(
-                204,
-                "Role deleted successfully"
-            );
-            return NoContent(); // NoContent does not allow a body, so you can skip the wrapper here
-        }
-        catch (KeyNotFoundException ex)
-        {
-            var errorResponse = new ApiResponseWrapper<object>(404, ex.Message);
-            return NotFound(errorResponse);
-        }
-        catch (InvalidOperationException ex)
-        {
-            var errorResponse = new ApiResponseWrapper<object>(400, ex.Message);
-            return BadRequest(errorResponse);
-        }
+        _roleService.DeleteRole(roleId); // throws exceptions if something goes wrong
+        return Ok(ApiResponse.Ok<object>(null, "Role deleted successfully"));
     }
 }

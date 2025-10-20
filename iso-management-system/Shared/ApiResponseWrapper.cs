@@ -1,3 +1,5 @@
+using iso_management_system.Constants;
+
 namespace iso_management_system.Shared;
 
 // ApiResponseWrapper.cs
@@ -8,9 +10,9 @@ public class ApiResponseWrapper<T>
     public T? Data { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
-    public ApiResponseWrapper(int status, string message, T? data = default)
+    public ApiResponseWrapper(ApiStatusCode statusCode, string message, T? data = default)
     {
-        Status = status;
+        Status = (int)statusCode;
         Message = message;
         Data = data;
     }

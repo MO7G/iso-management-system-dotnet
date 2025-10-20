@@ -23,9 +23,11 @@ namespace iso_management_system.Repositories.Implementations
         {
             return _context.Roles
                 .Include(r => r.RolePermissionMappings)
-                .ThenInclude(rp => rp.Permission)
+                .ThenInclude(rp => rp.Permission) // load permissions of the mappings
+                .Include(r => r.UserRoleAssignments) // load assigned users
                 .FirstOrDefault(r => r.RoleID == id);
         }
+
 
         
         public void AddRole(Role role)
@@ -39,7 +41,16 @@ namespace iso_management_system.Repositories.Implementations
         public void DeleteRole(Role role)
         {
             _context.Roles.Remove(role);
-             _context.SaveChanges();
+            _context.SaveChanges();
+        }
+
+        public bool RoleNameExists(string roleName)
+        {
+            bool exists = (from r in _context.Roles
+                where r.RoleName.ToLower() == roleName.ToLower()
+                select r).Any();
+
+            return exists;
         }
 
     }

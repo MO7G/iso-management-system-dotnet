@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using iso_management_system.Constants;
 using iso_management_system.Exceptions;
 using iso_management_system.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +34,7 @@ public class GlobalExceptionMiddleware
 
     private static Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
-        int statusCode;
+        ApiStatusCode statusCode;
         object responseBody;
 
         switch (ex)
@@ -49,23 +50,27 @@ public class GlobalExceptionMiddleware
                 break;
 
             case CustomValidationException validationEx:
-                statusCode = 400;
+                statusCode = validationEx.StatusCode;
                 responseBody = new ApiResponseWrapper<Dictionary<string, string[]>>(
                     statusCode,
                     validationEx.Message,
                     validationEx.Errors
                 );
                 break;
+            
+            case BusinessRuleException businessRuleException:   // <-- handle it here
+                statusCode = businessRuleException.StatusCode;    // 400
+                responseBody = new ApiResponseWrapper<object>(statusCode, businessRuleException.Message);
+                break;
 
             default:
-                statusCode = 500;
+                statusCode = ApiStatusCode.BadRequest;
                 responseBody = new ApiResponseWrapper<object>(statusCode, "Internal Server Error");
                 break;
         }
 
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = statusCode;
-
+        context.Response.StatusCode = (int)statusCode;  // convert from enum to int !!!
         return context.Response.WriteAsJsonAsync(responseBody);
     }
 }

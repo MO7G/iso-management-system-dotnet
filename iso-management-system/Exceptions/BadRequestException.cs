@@ -1,9 +1,11 @@
+using iso_management_system.Constants;
+
 namespace iso_management_system.Exceptions;
 
 
 public class BadRequestException : Exception
 {
-    public int StatusCode { get; } = 400;
+    public ApiStatusCode StatusCode { get; } = ApiStatusCode.BadRequest;
 
     public BadRequestException(string message) : base(message) { }
 }
