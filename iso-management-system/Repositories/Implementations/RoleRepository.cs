@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using iso_management_system.Models;
 using iso_management_system.Repositories.Interfaces;
 using iso_management_system.Configurations.Db; // for AppDbContext

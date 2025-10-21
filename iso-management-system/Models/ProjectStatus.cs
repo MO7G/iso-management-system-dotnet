@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace iso_management_system.Models
 {
     public class ProjectStatus

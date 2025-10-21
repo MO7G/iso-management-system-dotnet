@@ -1,5 +1,6 @@
 // Extension method
 
+using System;
 using iso_management_system.Configurations.Db;
 using Microsoft.EntityFrameworkCore;
 

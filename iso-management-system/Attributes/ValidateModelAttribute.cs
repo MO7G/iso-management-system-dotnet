@@ -1,3 +1,4 @@
+using System.Linq;
 using iso_management_system.Exceptions;
 
 namespace iso_management_system.Attributes;
