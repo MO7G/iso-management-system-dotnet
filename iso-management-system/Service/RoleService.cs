@@ -25,7 +25,8 @@ public class RoleService
 
         // Get all Role entities from the repository
         IEnumerable<Role> roles = _roleRepository.GetAllRoles();
-        DebugPrinter.PrintRoles(roles);
+        
+        // DebugPrinter.PrintRoles(roles);
 
         // Use the mapper to convert each Role to RoleResponseDTO
         var roleDTOs = roles.Select(RoleMapper.ToResponseDTO);

@@ -13,5 +13,25 @@ public class User
     public DateTime ModifiedAt { get; set; } = DateTime.Now;
 
     // Navigation
-    public ICollection<Role> Roles { get; set; } = new List<Role>();
+    // ==============================
+    // 🔹 Many-to-Many: User ↔ Role (implicit)
+    // ==============================
+    public ICollection<Role> Roles { get; set; }
+
+    // ==============================
+    // 🔹 Many-to-Many: User ↔ Project (explicit via ProjectAssignment)
+    // ==============================
+    public ICollection<ProjectAssignment> ProjectAssignments { get; set; }
+
+    // ==============================
+    // 🔹 One-to-Many: User → DocumentRevision
+    // ==============================
+    public ICollection<DocumentRevision> DocumentRevisions { get; set; }
+
+    // ==============================
+    // 🔹 One-to-Many: User → FileStorage
+    // ==============================
+    public ICollection<FileStorage> UploadedFiles { get; set; }
+    
+    
 }

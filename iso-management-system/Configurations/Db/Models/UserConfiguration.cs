@@ -67,5 +67,24 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                       j.Property<DateTime>("CreatedAt").HasDefaultValueSql("GETDATE()");
                       j.Property<DateTime>("ModifiedAt").HasDefaultValueSql("GETDATE()");
                   });
+        
+        
+        // 🔹 One-to-Many: User → ProjectAssignments
+        entity.HasMany(u => u.ProjectAssignments)
+              .WithOne(pa => pa.User)
+              .HasForeignKey(pa => pa.UserId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+        // 🔹 One-to-Many: User → DocumentRevisions
+        entity.HasMany(u => u.DocumentRevisions)
+              .WithOne(dr => dr.ModifiedByUser)
+              .HasForeignKey(dr => dr.ModifiedByUserID)
+              .OnDelete(DeleteBehavior.SetNull);
+
+        // 🔹 One-to-Many: User → FileStorage (UploadedFiles)
+        entity.HasMany(u => u.UploadedFiles)
+              .WithOne(f => f.UploadedByUser)
+              .HasForeignKey(f => f.UploadedByUserID)
+              .OnDelete(DeleteBehavior.SetNull);
     }
 }

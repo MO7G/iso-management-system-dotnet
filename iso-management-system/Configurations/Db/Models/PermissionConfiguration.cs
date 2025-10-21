@@ -26,5 +26,11 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 
         builder.Property(p => p.ModifiedAt)
             .HasDefaultValueSql("GETDATE()");
+        
+        
+        // Many-to-many relationship with Role is configured in RoleConfiguration
+        // via the "RolePermissionMappings" join table.
+
+
     }
 }
