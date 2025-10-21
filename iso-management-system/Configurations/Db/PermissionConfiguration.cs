@@ -2,27 +2,29 @@ using iso_management_system.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace iso_management_system.Data.Configurations
+namespace iso_management_system.Configurations.Db;
+
+public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
-    public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
+    public void Configure(EntityTypeBuilder<Permission> builder)
     {
-        public void Configure(EntityTypeBuilder<Permission> builder)
-        {
-            builder.ToTable("Permissions");
+        builder.ToTable("Permissions");
 
-            builder.HasKey(p => p.PermissionID);
+        builder.HasKey(p => p.PermissionID);
 
-            builder.Property(p => p.PermissionName)
-                .IsRequired()
-                .HasMaxLength(100);
+        builder.Property(p => p.PermissionName)
+            .HasMaxLength(100)
+            .IsRequired();
 
-            builder.Property(p => p.Description)
-                .HasMaxLength(255);
+        builder.HasIndex(p => p.PermissionName).IsUnique();
 
-            builder.HasMany(p => p.RolePermissionMappings)
-                .WithOne(rp => rp.Permission)
-                .HasForeignKey(rp => rp.PermissionID)
-                .OnDelete(DeleteBehavior.Cascade);
-        }
+        builder.Property(p => p.Description)
+            .HasMaxLength(200);
+
+        builder.Property(p => p.CreatedAt)
+            .HasDefaultValueSql("GETDATE()");
+
+        builder.Property(p => p.ModifiedAt)
+            .HasDefaultValueSql("GETDATE()");
     }
 }

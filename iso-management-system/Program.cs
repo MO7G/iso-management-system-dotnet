@@ -6,12 +6,35 @@ using iso_management_system.Repositories.Interfaces;
 using iso_management_system.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+        .EnableSensitiveDataLogging(false); // prevents logging parameter values
+});
+
+
+
+
+
+
+
+
+
+
+builder.Logging.ClearProviders(); // optional: clear default providers
+builder.Logging.AddConsole();     // or keep your console logger
+
+// Filter EF Core SQL commands
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+
+
+
+
 
 // Add application service using assembly scanning
 builder.Services.AddApplicationServices();

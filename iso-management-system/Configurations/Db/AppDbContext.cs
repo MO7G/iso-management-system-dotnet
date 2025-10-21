@@ -1,7 +1,6 @@
-using iso_management_system.Data.Configurations;
 using Microsoft.EntityFrameworkCore;
 using iso_management_system.Models;
-using iso_management_system.Models.JoinEntities;
+
 
 namespace iso_management_system.Configurations.Db
 {
@@ -15,8 +14,7 @@ namespace iso_management_system.Configurations.Db
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
-        public DbSet<UserRoleAssignment> UserRoleAssignments { get; set; }
-        public DbSet<RolePermissionMapping> RolePermissionMappings { get; set; }
+ 
 
         // You will add more later (Customers, Projects, etc.)
 
@@ -28,8 +26,6 @@ namespace iso_management_system.Configurations.Db
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
             modelBuilder.ApplyConfiguration(new PermissionConfiguration());
-            modelBuilder.ApplyConfiguration(new UserRoleAssignmentConfiguration());
-            modelBuilder.ApplyConfiguration(new RolePermissionMappingConfiguration());
 
         }
     }

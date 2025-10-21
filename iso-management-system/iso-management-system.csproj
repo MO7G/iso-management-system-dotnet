@@ -24,4 +24,8 @@
         <Link>.dockerignore</Link>
       </Content>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Models\JoinEntities\" />
+    </ItemGroup>
 </Project>

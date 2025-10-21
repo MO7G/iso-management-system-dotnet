@@ -13,5 +13,8 @@ namespace iso_management_system.Repositories.Interfaces
         bool RoleNameExists(string roleName);
         // void UpdateRole(Role role);
 
+        public Role? GetRoleWithUsers(int id);
+
+
     }
 }

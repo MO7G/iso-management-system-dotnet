@@ -1,4 +1,3 @@
-using iso_management_system.Models.JoinEntities;
 
 namespace iso_management_system.Models;
 
@@ -12,6 +11,6 @@ public class Role
     public DateTime ModifiedAt { get; set; } = DateTime.Now;
 
     // Navigation
-    public ICollection<UserRoleAssignment> UserRoleAssignments { get; set; } = new List<UserRoleAssignment>();
-    public ICollection<RolePermissionMapping> RolePermissionMappings { get; set; } = new List<RolePermissionMapping>();
+    public ICollection<User> Users { get; set; } = new List<User>();
+    public ICollection<Permission> Permissions { get; set; } = new List<Permission>();
 }

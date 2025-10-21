@@ -16,18 +16,26 @@ namespace iso_management_system.Repositories.Implementations
 
         public IEnumerable<Role> GetAllRoles()
         {
-            return _context.Roles.ToList(); // simple query to get all roles
+            return _context.Roles
+                .Include(r => r.Permissions)
+                .ToList(); // simple query to get all roles
         }
 
         public Role? GetRoleById(int id)
         {
             return _context.Roles
-                .Include(r => r.RolePermissionMappings)
-                .ThenInclude(rp => rp.Permission) // load permissions of the mappings
-                .Include(r => r.UserRoleAssignments) // load assigned users
+                .Include(r => r.Permissions) // navigation collection on Role
                 .FirstOrDefault(r => r.RoleID == id);
         }
 
+
+        public Role? GetRoleWithUsers(int id)
+        {
+            return _context.Roles
+                .Include(r => r.Users)       // include assigned users
+                .Include(r => r.Permissions) // optional, if needed
+                .FirstOrDefault(r => r.RoleID == id);
+        }
 
         
         public void AddRole(Role role)
