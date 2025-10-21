@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/yohajji/working/iso-management-system-dotnet/iso-management-system/iso-management-system.csproj": {}
+    "/home/yohajji/working/iso-management-system/iso-management-system/iso-management-system.csproj": {}
   },
   "projects": {
-    "/Users/yohajji/working/iso-management-system-dotnet/iso-management-system/iso-management-system.csproj": {
+    "/home/yohajji/working/iso-management-system/iso-management-system/iso-management-system.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/yohajji/working/iso-management-system-dotnet/iso-management-system/iso-management-system.csproj",
+        "projectUniqueName": "/home/yohajji/working/iso-management-system/iso-management-system/iso-management-system.csproj",
         "projectName": "iso-management-system",
-        "projectPath": "/Users/yohajji/working/iso-management-system-dotnet/iso-management-system/iso-management-system.csproj",
-        "packagesPath": "/Users/yohajji/.nuget/packages/",
-        "outputPath": "/Users/yohajji/working/iso-management-system-dotnet/iso-management-system/obj/",
+        "projectPath": "/home/yohajji/working/iso-management-system/iso-management-system/iso-management-system.csproj",
+        "packagesPath": "/home/yohajji/.nuget/packages/",
+        "outputPath": "/home/yohajji/working/iso-management-system/iso-management-system/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/yohajji/.nuget/NuGet/NuGet.Config"
+          "/home/yohajji/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -37,8 +37,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -86,7 +85,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/Users/yohajji/.dotnet/sdk/9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/yohajji/.dotnet/sdk/8.0.415/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
