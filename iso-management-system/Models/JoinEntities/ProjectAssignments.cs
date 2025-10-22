@@ -4,7 +4,7 @@ using iso_management_system.Models.JoinEntities;
 
 namespace iso_management_system.Models
 {
-    public class ProjectAssignment
+    public class ProjectAssignments
     {
         public int AssignmentId { get; set; }
 
@@ -22,6 +22,6 @@ namespace iso_management_system.Models
         // ==============================
         // 🔹 Many-to-Many: Assignment ↔ Role (ProjectRoles)
         // ==============================
-        public ICollection<ProjectRole> ProjectRoles { get; set; } = new List<ProjectRole>();
+        public ICollection<ProjectRoles> ProjectRoles { get; set; } = new List<ProjectRoles>();
     }
 }

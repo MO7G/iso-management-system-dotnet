@@ -1,8 +1,8 @@
 using System;
 
-namespace iso_management_system.Models.JoinEntities;
+namespace iso_management_system.Models;
 
-public class ProjectRole
+public class ProjectRoles
 {
     // Composite key: AssignmentId + RoleId
     public int AssignmentId { get; set; }
@@ -13,6 +13,6 @@ public class ProjectRole
     public DateTime ModifiedAt { get; set; } = DateTime.Now;
 
     // Navigation
-    public ProjectAssignment ProjectAssignment { get; set; } = null!;
+    public ProjectAssignments ProjectAssignment { get; set; } = null!;
     public Role Role { get; set; } = null!;
 }

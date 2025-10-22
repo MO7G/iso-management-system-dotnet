@@ -26,7 +26,7 @@ namespace iso_management_system.Models
         public Standard Standard { get; set; } = null!; // <--- Add this
 
         // Collections
-        public ICollection<ProjectAssignment> ProjectAssignments { get; set; } = new List<ProjectAssignment>();
+        public ICollection<ProjectAssignments> ProjectAssignments { get; set; } = new List<ProjectAssignments>();
         public ICollection<ProjectDocuments> ProjectDocuments { get; set; } = new List<ProjectDocuments>();
         public ICollection<DocumentRevision> DocumentRevisions { get; set; } = new List<DocumentRevision>();
     }

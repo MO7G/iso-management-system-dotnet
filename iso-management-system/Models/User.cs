@@ -24,7 +24,7 @@ public class User
     // ==============================
     // 🔹 Many-to-Many: User ↔ Project (explicit via ProjectAssignment)
     // ==============================
-    public ICollection<ProjectAssignment> ProjectAssignments { get; set; }
+    public ICollection<ProjectAssignments> ProjectAssignments { get; set; }
 
     // ==============================
     // 🔹 One-to-Many: User → DocumentRevision

@@ -17,6 +17,6 @@ namespace iso_management_system.Models
         public ICollection<Permission> Permissions { get; set; } = new List<Permission>();
 
         // Explicit many-to-many: ProjectAssignments ↔ Roles
-        public ICollection<ProjectRole> ProjectRoles { get; set; } = new List<ProjectRole>();
+        public ICollection<ProjectRoles> ProjectRoles { get; set; } = new List<ProjectRoles>();
     }
 }

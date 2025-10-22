@@ -1,12 +1,14 @@
+using iso_management_system.Models;
 using iso_management_system.Models.JoinEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+
 namespace iso_management_system.Configurations.Db.JoinEntities
 {
-    public class ProjectRolesConfiguration : IEntityTypeConfiguration<ProjectRole>
+    public class ProjectRolesConfiguration : IEntityTypeConfiguration<ProjectRoles>
     {
-        public void Configure(EntityTypeBuilder<ProjectRole> builder)
+        public void Configure(EntityTypeBuilder<ProjectRoles> builder)
         {
             builder.ToTable("ProjectRoles");
 

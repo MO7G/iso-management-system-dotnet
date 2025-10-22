@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace iso_management_system.Configurations.Db.JoinEntities
 {
-    public class ProjectAssignmentsConfiguration : IEntityTypeConfiguration<ProjectAssignment>
+    public class ProjectAssignmentsConfiguration : IEntityTypeConfiguration<ProjectAssignments>
     {
-        public void Configure(EntityTypeBuilder<ProjectAssignment> builder)
+        public void Configure(EntityTypeBuilder<ProjectAssignments> builder)
         {
             builder.ToTable("ProjectAssignments");
 

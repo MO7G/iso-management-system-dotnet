@@ -1,0 +1,1383 @@
+
+using System;
+using System.Collections.Generic;
+
+namespace iso_management_system.Models;
+
+public class User
+{
+    public int UserID { get; set; }
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null;
+    public string Email { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
+    public bool IsActive { get; set; } = true;
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime ModifiedAt { get; set; } = DateTime.Now;
+
+    // Navigation
+    // ==============================
+    // 🔹 Many-to-Many: User ↔ Role (implicit)
+    // ==============================
+    public ICollection<Role> Roles { get; set; }
+
+    // ==============================
+    // 🔹 Many-to-Many: User ↔ Project (explicit via ProjectAssignment)
+    // ==============================
+    public ICollection<ProjectAssignment> ProjectAssignments { get; set; }
+
+    // ==============================
+    // 🔹 One-to-Many: User → DocumentRevision
+    // ==============================
+    public ICollection<DocumentRevision> DocumentRevisions { get; set; }
+
+    // ==============================
+    // 🔹 One-to-Many: User → FileStorage
+    // ==============================
+    public ICollection<FileStorage> UploadedFiles { get; set; }
+    
+    
+}using System;
+ using System.Collections.Generic;
+ using iso_management_system.Models.JoinEntities;
+ 
+ namespace iso_management_system.Models
+ {
+     public class StandardTemplate
+     {
+         public int TemplateID { get; set; }
+         public int SectionID { get; set; }
+         public int FileID { get; set; }
+         public DateTime CreatedAt { get; set; } = DateTime.Now;
+         public DateTime ModifiedAt { get; set; } = DateTime.Now;
+ 
+         // Navigation
+         public StandardSection Section { get; set; } = null!;
+         public FileStorage File { get; set; } = null!;
+         public ICollection<ProjectDocuments> ProjectDocuments { get; set; } = new List<ProjectDocuments>();
+     }
+ }using System;
+  using System.Collections.Generic;
+  using iso_management_system.Models.JoinEntities;
+  
+  namespace iso_management_system.Models
+  {
+      public class StandardTemplate
+      {
+          public int TemplateID { get; set; }
+          public int SectionID { get; set; }
+          public int FileID { get; set; }
+          public DateTime CreatedAt { get; set; } = DateTime.Now;
+          public DateTime ModifiedAt { get; set; } = DateTime.Now;
+  
+          // Navigation
+          public StandardSection Section { get; set; } = null!;
+          public FileStorage File { get; set; } = null!;
+          public ICollection<ProjectDocuments> ProjectDocuments { get; set; } = new List<ProjectDocuments>();
+      }
+  }using System;
+   using System.Collections.Generic;
+   
+   namespace iso_management_system.Models
+   {
+       public class Standard
+       {
+           public int StandardID { get; set; }
+           public string Name { get; set; } = null!;
+           public string? Version { get; set; }
+           public DateTime? PublishedDate { get; set; }
+           public DateTime CreatedAt { get; set; } = DateTime.Now;
+           public DateTime ModifiedAt { get; set; } = DateTime.Now;
+   
+           // Navigation Properties
+           public ICollection<StandardSection> Sections { get; set; } = new List<StandardSection>();
+           public ICollection<Project> Projects { get; set; } = new List<Project>();
+       }
+   }using System;
+    using System.Collections.Generic;
+    using iso_management_system.Models.JoinEntities;
+    
+    namespace iso_management_system.Models
+    {
+        public class Role
+        {
+            public int RoleID { get; set; }
+            public string RoleName { get; set; } = null!;
+            public string? Description { get; set; }
+            public DateTime CreatedAt { get; set; } = DateTime.Now;
+            public DateTime ModifiedAt { get; set; } = DateTime.Now;
+    
+            // Navigation
+            public ICollection<User> Users { get; set; } = new List<User>();
+            public ICollection<Permission> Permissions { get; set; } = new List<Permission>();
+    
+            // Explicit many-to-many: ProjectAssignments ↔ Roles
+            public ICollection<ProjectRole> ProjectRoles { get; set; } = new List<ProjectRole>();
+        }
+    }using System;
+     using System.Collections.Generic;
+     
+     namespace iso_management_system.Models
+     {
+         public class ProjectStatus
+         {
+             public int StatusId { get; set; }
+             public string StatusName { get; set; } = null!;
+             public string? Description { get; set; }
+     
+             public DateTime CreatedAt { get; set; } = DateTime.Now;
+             public DateTime ModifiedAt { get; set; } = DateTime.Now;
+     
+             
+           
+     
+             
+             // Navigation property
+             public ICollection<Project> Projects { get; set; } = new List<Project>();
+         }
+     }public ProjectStatus ProjectStatus { get; set; } = null!;	public ProjectStatus ProjectStatus { get; set; } = null!;	public ProjectStatus ProjectStatus { get; set; } = null!;	public ProjectStatus ProjectStatus { get; set; } = null!;
+using System;
+using System.Collections.Generic;
+
+namespace iso_management_system.Models;
+
+public class Permission
+{
+    public int PermissionID { get; set; }
+    public string PermissionName { get; set; } = null!;
+    public string? Description { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime ModifiedAt { get; set; } = DateTime.Now;
+
+    // Navigation
+    public ICollection<Role> Roles { get; set; } = new List<Role>();
+}using System;
+ using System.Collections.Generic;
+ using iso_management_system.Models.JoinEntities;
+ 
+ namespace iso_management_system.Models
+ {
+     public class FileStorage
+     {
+         public int FileID { get; set; }
+         public string FileName { get; set; } = null!;
+         public string FilePath { get; set; } = null!;
+         public long? FileSize { get; set; }
+ 
+         // Foreign Keys
+         public int? UploadedByUserID { get; set; }
+         public int? UploadedByCustomerID { get; set; }
+ 
+         // Metadata
+         public DateTime UploadedAt { get; set; } = DateTime.Now;
+ 
+         // Navigation Properties
+         public User? UploadedByUser { get; set; }
+         public Customer? UploadedByCustomer { get; set; }
+ 
+         // Navigation collections for other relationships (if needed)
+         public ICollection<DocumentRevision> DocumentRevisions { get; set; } = new List<DocumentRevision>();
+         public ICollection<ProjectDocuments> ProjectDocuments { get; set; } = new List<ProjectDocuments>();
+         public ICollection<StandardTemplate> StandardTemplates { get; set; } = new List<StandardTemplate>();
+     }
+ }using System;
+  using System.Collections.Generic;
+  using iso_management_system.Models.JoinEntities;
+  
+  namespace iso_management_system.Models
+  {
+      public class DocumentStatus
+      {
+          public int StatusID { get; set; }
+          public string StatusName { get; set; } = null!;
+          public string? Description { get; set; }
+          public DateTime CreatedAt { get; set; } = DateTime.Now;
+          public DateTime ModifiedAt { get; set; } = DateTime.Now;
+  
+          // Navigation
+          public ICollection<ProjectDocuments> ProjectDocuments { get; set; } = new List<ProjectDocuments>();
+      }
+  }using System;
+   using System.Collections.Generic;
+   
+   namespace iso_management_system.Models
+   {
+       public class Customer
+       {
+           public int CustomerID { get; set; }
+           public string Name { get; set; } = null!;
+           public string? Email { get; set; }
+           public DateTime CreatedAt { get; set; } = DateTime.Now;
+           public DateTime ModifiedAt { get; set; } = DateTime.Now;
+   
+           // Navigation Properties
+   
+           // One-to-Many: Customer → Projects
+           public ICollection<Project> Projects { get; set; } = new List<Project>();
+   
+           // One-to-Many: Customer → FileStorage (uploaded by customer)
+           public ICollection<FileStorage> UploadedFiles { get; set; } = new List<FileStorage>();
+       }
+   }
+   
+   
+   using System;
+   
+   namespace iso_management_system.Models.JoinEntities;
+   
+   public class ProjectRole
+   {
+       // Composite key: AssignmentId + RoleId
+       public int AssignmentId { get; set; }
+       public int RoleId { get; set; }
+   
+       // Metadata
+       public DateTime CreatedAt { get; set; } = DateTime.Now;
+       public DateTime ModifiedAt { get; set; } = DateTime.Now;
+   
+       // Navigation
+       public ProjectAssignment ProjectAssignment { get; set; } = null!;
+       public Role Role { get; set; } = null!;
+   }using System;
+    using System.Collections.Generic;
+    
+    namespace iso_management_system.Models.JoinEntities
+    {
+        public class ProjectDocuments
+        {
+            public int ProjectDocumentID { get; set; }
+    
+            // Foreign Keys
+            public int ProjectId { get; set; }
+            public int TemplateID { get; set; }
+            public int FileID { get; set; }
+            public int StatusID { get; set; }
+            public int? LastModifiedBy { get; set; }
+    
+            // Metadata
+            public int VersionNumber { get; set; } = 1;
+            public DateTime CreatedAt { get; set; } = DateTime.Now;
+            public DateTime ModifiedAt { get; set; } = DateTime.Now;
+    
+            // Navigation Properties
+            public Project Project { get; set; } = null!;
+            public StandardTemplate Template { get; set; } = null!;
+            public FileStorage File { get; set; } = null!;
+            public DocumentStatus Status { get; set; } = null!;
+            public User? LastModifiedUser { get; set; }
+    
+            // 🔹 One-to-Many: ProjectDocument → DocumentRevisions
+            public ICollection<DocumentRevision> DocumentRevisions { get; set; } = new List<DocumentRevision>();
+        }
+    }using System;
+     using System.Collections.Generic;
+     using iso_management_system.Models.JoinEntities;
+     
+     namespace iso_management_system.Models
+     {
+         public class ProjectAssignment
+         {
+             public int AssignmentId { get; set; }
+     
+             // Foreign Keys
+             public int ProjectId { get; set; }
+             public int UserId { get; set; }
+     
+             // Metadata
+             public DateTime AssignedAt { get; set; } = DateTime.Now;
+     
+             // Navigation Properties
+             public Project Project { get; set; } = null!;
+             public User User { get; set; } = null!;
+     
+             // ==============================
+             // 🔹 Many-to-Many: Assignment ↔ Role (ProjectRoles)
+             // ==============================
+             public ICollection<ProjectRole> ProjectRoles { get; set; } = new List<ProjectRole>();
+         }
+     }using System;
+      using iso_management_system.Models.JoinEntities;
+      
+      namespace iso_management_system.Models
+      {
+          public class DocumentRevision
+          {
+              public int RevisionID { get; set; }
+      
+              // Foreign Keys
+              public int ProjectDocumentID { get; set; }
+              public int FileID { get; set; }
+              public int? ModifiedByUserID { get; set; }
+      
+              // Metadata
+              public int VersionNumber { get; set; }
+              public DateTime ModifiedAt { get; set; } = DateTime.Now;
+              public DateTime CreatedAt { get; set; } = DateTime.Now;
+              public string? ChangeNote { get; set; }
+      
+              // Navigation Properties
+              public ProjectDocuments ProjectDocument { get; set; } = null!;
+              public FileStorage File { get; set; } = null!;
+              public User? ModifiedByUser { get; set; }
+          }
+      }
+      
+      using iso_management_system.Models;
+      using Microsoft.EntityFrameworkCore;
+      using Microsoft.EntityFrameworkCore.Metadata.Builders;
+      
+      namespace iso_management_system.Configurations.Db.JoinEntities
+      {
+          public class DocumentRevisionConfiguration : IEntityTypeConfiguration<DocumentRevision>
+          {
+              public void Configure(EntityTypeBuilder<DocumentRevision> builder)
+              {
+                  builder.ToTable("DocumentRevisions");
+      
+                  builder.HasKey(dr => dr.RevisionID);
+      
+                  builder.Property(dr => dr.ProjectDocumentID)
+                         .IsRequired();
+      
+                  builder.Property(dr => dr.FileID)
+                         .IsRequired();
+      
+                  builder.Property(dr => dr.VersionNumber)
+                         .IsRequired();
+      
+                  builder.Property(dr => dr.ModifiedAt)
+                         .HasDefaultValueSql("GETDATE()");
+      
+                  builder.Property(dr => dr.CreatedAt)
+                         .HasDefaultValueSql("GETDATE()");
+      
+                  builder.Property(dr => dr.ChangeNote)
+                         .HasMaxLength(500);
+      
+                  // -----------------------------
+                  // 🔹 DocumentRevision → ProjectDocuments (Many-to-One)
+                  // -----------------------------
+                  builder.HasOne(dr => dr.ProjectDocument)
+                         .WithMany(pd => pd.DocumentRevisions)
+                         .HasForeignKey(dr => dr.ProjectDocumentID)
+                         .OnDelete(DeleteBehavior.Cascade);
+      
+                  // -----------------------------
+                  // 🔹 DocumentRevision → FileStorage (Many-to-One)
+                  // -----------------------------
+                  builder.HasOne(dr => dr.File)
+                         .WithMany(f => f.DocumentRevisions)
+                         .HasForeignKey(dr => dr.FileID)
+                         .OnDelete(DeleteBehavior.Cascade);
+      
+                  // -----------------------------
+                  // 🔹 DocumentRevision → User (ModifiedBy) (Many-to-One, optional)
+                  // -----------------------------
+                  builder.HasOne(dr => dr.ModifiedByUser)
+                         .WithMany(u => u.DocumentRevisions)
+                         .HasForeignKey(dr => dr.ModifiedByUserID)
+                         .OnDelete(DeleteBehavior.SetNull);
+              }
+          }
+      }
+using iso_management_system.Models;
+using iso_management_system.Models.JoinEntities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace iso_management_system.Configurations.Db.JoinEntities
+{
+    public class ProjectAssignmentsConfiguration : IEntityTypeConfiguration<ProjectAssignment>
+    {
+        public void Configure(EntityTypeBuilder<ProjectAssignment> builder)
+        {
+            builder.ToTable("ProjectAssignments");
+
+            builder.HasKey(pa => pa.AssignmentId);
+
+            builder.Property(pa => pa.AssignedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            // -----------------------------
+            // 🔹 ProjectAssignment → Project (Many-to-One)
+            // -----------------------------
+            builder.HasOne(pa => pa.Project)
+                .WithMany(p => p.ProjectAssignments)
+                .HasForeignKey(pa => pa.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // -----------------------------
+            // 🔹 ProjectAssignment → User (Many-to-One)
+            // -----------------------------
+            builder.HasOne(pa => pa.User)
+                .WithMany(u => u.ProjectAssignments)
+                .HasForeignKey(pa => pa.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // -----------------------------
+            // 🔹 ProjectAssignment → ProjectRole (One-to-Many)
+            // -----------------------------
+            builder.HasMany(pa => pa.ProjectRoles)
+                .WithOne(pr => pr.ProjectAssignment)
+                .HasForeignKey(pr => pr.AssignmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}using iso_management_system.Models.JoinEntities;
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.EntityFrameworkCore.Metadata.Builders;
+ 
+ namespace iso_management_system.Configurations.Db.JoinEntities
+ {
+     public class ProjectDocumentsConfiguration : IEntityTypeConfiguration<ProjectDocuments>
+     {
+         public void Configure(EntityTypeBuilder<ProjectDocuments> builder)
+         {
+             builder.ToTable("ProjectDocuments");
+ 
+             builder.HasKey(pd => pd.ProjectDocumentID);
+ 
+             // Metadata
+             builder.Property(pd => pd.VersionNumber)
+                    .HasDefaultValue(1);
+ 
+             builder.Property(pd => pd.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+ 
+             builder.Property(pd => pd.ModifiedAt)
+                    .HasDefaultValueSql("GETDATE()");
+ 
+             // -----------------------------
+             // 🔹 ProjectDocument → Project (Many-to-One)
+             // -----------------------------
+             builder.HasOne(pd => pd.Project)
+                    .WithMany(p => p.ProjectDocuments)
+                    .HasForeignKey(pd => pd.ProjectId)
+                    .OnDelete(DeleteBehavior.Cascade);
+ 
+             // -----------------------------
+             // 🔹 ProjectDocument → StandardTemplate (Many-to-One)
+             // -----------------------------
+             builder.HasOne(pd => pd.Template)
+                    .WithMany(st => st.ProjectDocuments)
+                    .HasForeignKey(pd => pd.TemplateID)
+                    .OnDelete(DeleteBehavior.Cascade);
+ 
+             // -----------------------------
+             // 🔹 ProjectDocument → FileStorage (Many-to-One)
+             // -----------------------------
+             builder.HasOne(pd => pd.File)
+                    .WithMany(f => f.ProjectDocuments)
+                    .HasForeignKey(pd => pd.FileID)
+                    .OnDelete(DeleteBehavior.Cascade);
+ 
+             // -----------------------------
+             // 🔹 ProjectDocument → DocumentStatus (Many-to-One)
+             // -----------------------------
+             builder.HasOne(pd => pd.Status)
+                    .WithMany(ds => ds.ProjectDocuments)
+                    .HasForeignKey(pd => pd.StatusID)
+                    .OnDelete(DeleteBehavior.Restrict);
+ 
+             // -----------------------------
+             // 🔹 ProjectDocument → User (LastModifiedBy, optional)
+             // -----------------------------
+             builder.HasOne(pd => pd.LastModifiedUser)
+                    .WithMany()
+                    .HasForeignKey(pd => pd.LastModifiedBy)
+                    .OnDelete(DeleteBehavior.SetNull);
+ 
+             // -----------------------------
+             // 🔹 ProjectDocument → DocumentRevisions (One-to-Many)
+             // -----------------------------
+             builder.HasMany(pd => pd.DocumentRevisions)
+                    .WithOne(dr => dr.ProjectDocument)
+                    .HasForeignKey(dr => dr.ProjectDocumentID)
+                    .OnDelete(DeleteBehavior.Cascade);
+         }
+     }
+ }
+using iso_management_system.Models.JoinEntities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace iso_management_system.Configurations.Db.JoinEntities
+{
+    public class ProjectRolesConfiguration : IEntityTypeConfiguration<ProjectRole>
+    {
+        public void Configure(EntityTypeBuilder<ProjectRole> builder)
+        {
+            builder.ToTable("ProjectRoles");
+
+            // Composite primary key
+            builder.HasKey(pr => new { pr.AssignmentId, pr.RoleId });
+
+            // Metadata columns
+            builder.Property(pr => pr.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            builder.Property(pr => pr.ModifiedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            // -----------------------------
+            // 🔹 ProjectRole → ProjectAssignment (Many-to-One)
+            // -----------------------------
+            builder.HasOne(pr => pr.ProjectAssignment)
+                .WithMany(pa => pa.ProjectRoles)
+                .HasForeignKey(pr => pr.AssignmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // -----------------------------
+            // 🔹 ProjectRole → Role (Many-to-One)
+            // -----------------------------
+            builder.HasOne(pr => pr.Role)
+                .WithMany(r => r.ProjectRoles)
+                .HasForeignKey(pr => pr.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}using iso_management_system.Models;
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.EntityFrameworkCore.Metadata.Builders;
+ 
+ namespace iso_management_system.Configurations.Db
+ {
+     public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
+     {
+         public void Configure(EntityTypeBuilder<Customer> builder)
+         {
+             builder.ToTable("Customers");
+ 
+             // Primary Key
+             builder.HasKey(c => c.CustomerID);
+ 
+             // Properties
+             builder.Property(c => c.Name)
+                 .HasMaxLength(200)
+                 .IsRequired();
+ 
+             builder.Property(c => c.Email)
+                 .HasMaxLength(200);
+ 
+             builder.Property(c => c.CreatedAt)
+                 .HasDefaultValueSql("GETDATE()");
+ 
+             builder.Property(c => c.ModifiedAt)
+                 .HasDefaultValueSql("GETDATE()");
+ 
+             // -----------------------------
+             // 🔹 Customer → Projects (One-to-Many)
+             // -----------------------------
+             builder.HasMany(c => c.Projects)
+                 .WithOne(p => p.Customer)
+                 .HasForeignKey(p => p.CustomerId)
+                 .OnDelete(DeleteBehavior.Restrict);
+ 
+             // -----------------------------
+             // 🔹 Customer → FileStorage (One-to-Many)
+             // -----------------------------
+             builder.HasMany(c => c.UploadedFiles)
+                 .WithOne(f => f.UploadedByCustomer)
+                 .HasForeignKey(f => f.UploadedByCustomerID)
+                 .OnDelete(DeleteBehavior.Restrict);
+         }
+     }
+ }using iso_management_system.Models;
+  using Microsoft.EntityFrameworkCore;
+  using Microsoft.EntityFrameworkCore.Metadata.Builders;
+  
+  namespace iso_management_system.Configurations.Db
+  {
+      public class DocumentStatusConfiguration : IEntityTypeConfiguration<DocumentStatus>
+      {
+          public void Configure(EntityTypeBuilder<DocumentStatus> builder)
+          {
+              builder.ToTable("DocumentStatuses");
+  
+              // Primary Key
+              builder.HasKey(ds => ds.StatusID);
+  
+              // Properties
+              builder.Property(ds => ds.StatusName)
+                  .HasMaxLength(100)
+                  .IsRequired();
+  
+              builder.Property(ds => ds.Description)
+                  .HasMaxLength(200);
+  
+              builder.Property(ds => ds.CreatedAt)
+                  .HasDefaultValueSql("GETDATE()");
+  
+              builder.Property(ds => ds.ModifiedAt)
+                  .HasDefaultValueSql("GETDATE()");
+  
+              // -----------------------------
+              // 🔹 DocumentStatus → ProjectDocuments (One-to-Many)
+              // -----------------------------
+              builder.HasMany(ds => ds.ProjectDocuments)
+                  .WithOne(pd => pd.Status)
+                  .HasForeignKey(pd => pd.StatusID)
+                  .OnDelete(DeleteBehavior.Restrict); // Usually restrict to avoid accidental deletion
+          }
+      }
+  }using iso_management_system.Models;
+   using Microsoft.EntityFrameworkCore;
+   using Microsoft.EntityFrameworkCore.Metadata.Builders;
+   
+   namespace iso_management_system.Configurations.Db
+   {
+       public class FileStorageConfiguration : IEntityTypeConfiguration<FileStorage>
+       {
+           public void Configure(EntityTypeBuilder<FileStorage> builder)
+           {
+               builder.ToTable("FileStorage");
+   
+               // Primary Key
+               builder.HasKey(f => f.FileID);
+   
+               // Properties
+               builder.Property(f => f.FileName)
+                      .HasMaxLength(200)
+                      .IsRequired();
+   
+               builder.Property(f => f.FilePath)
+                      .HasMaxLength(500)
+                      .IsRequired();
+   
+               builder.Property(f => f.FileSize);
+   
+               builder.Property(f => f.UploadedAt)
+                      .HasDefaultValueSql("GETDATE()");
+   
+               // -----------------------------
+               // 🔹 FileStorage → User (Many-to-One)
+               // -----------------------------
+               builder.HasOne(f => f.UploadedByUser)
+                      .WithMany(u => u.UploadedFiles)
+                      .HasForeignKey(f => f.UploadedByUserID)
+                      .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+   
+               // -----------------------------
+               // 🔹 FileStorage → Customer (Many-to-One)
+               // -----------------------------
+               builder.HasOne(f => f.UploadedByCustomer)
+                      .WithMany(c => c.UploadedFiles)
+                      .HasForeignKey(f => f.UploadedByCustomerID)
+                      .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+   
+               // -----------------------------
+               // 🔹 FileStorage → DocumentRevisions (One-to-Many)
+               // -----------------------------
+               builder.HasMany(f => f.DocumentRevisions)
+                      .WithOne(dr => dr.File)
+                      .HasForeignKey(dr => dr.FileID)
+                      .OnDelete(DeleteBehavior.Cascade);
+   
+               // -----------------------------
+               // 🔹 FileStorage → ProjectDocuments (One-to-Many)
+               // -----------------------------
+               builder.HasMany(f => f.ProjectDocuments)
+                      .WithOne(pd => pd.File)
+                      .HasForeignKey(pd => pd.FileID)
+                      .OnDelete(DeleteBehavior.Cascade);
+   
+               // -----------------------------
+               // 🔹 FileStorage → StandardTemplates (One-to-Many)
+               // -----------------------------
+               builder.HasMany(f => f.StandardTemplates)
+                      .WithOne(st => st.File)
+                      .HasForeignKey(st => st.FileID)
+                      .OnDelete(DeleteBehavior.Cascade);
+           }
+       }
+   }
+using iso_management_system.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace iso_management_system.Configurations.Db;
+
+public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
+{
+    public void Configure(EntityTypeBuilder<Permission> builder)
+    {
+        builder.ToTable("Permissions");
+
+        builder.HasKey(p => p.PermissionID);
+
+        builder.Property(p => p.PermissionName)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        builder.HasIndex(p => p.PermissionName).IsUnique();
+
+        builder.Property(p => p.Description)
+            .HasMaxLength(200);
+
+        builder.Property(p => p.CreatedAt)
+            .HasDefaultValueSql("GETDATE()");
+
+        builder.Property(p => p.ModifiedAt)
+            .HasDefaultValueSql("GETDATE()");
+        
+        
+        // Many-to-many relationship with Role is configured in RoleConfiguration
+        // via the "RolePermissionMappings" join table.
+
+
+    }
+}using iso_management_system.Models;
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.EntityFrameworkCore.Metadata.Builders;
+ 
+ namespace iso_management_system.Configurations.Db
+ {
+     public class ProjectConfiguration : IEntityTypeConfiguration<Project>
+     {
+         public void Configure(EntityTypeBuilder<Project> builder)
+         {
+             builder.ToTable("Projects");
+ 
+             builder.HasKey(p => p.ProjectId);
+ 
+             builder.Property(p => p.ProjectName)
+                    .HasMaxLength(200)
+                    .IsRequired();
+ 
+             builder.Property(p => p.Description)
+                    .HasMaxLength(1000);
+ 
+             builder.Property(p => p.StartDate)
+                    .HasDefaultValueSql("GETDATE()");
+ 
+             builder.Property(p => p.EndDate);
+ 
+             builder.Property(p => p.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+ 
+             builder.Property(p => p.ModifiedAt)
+                    .HasDefaultValueSql("GETDATE()");
+ 
+             // -----------------------------
+             // 🔹 Project → Customer (One-to-Many)
+             // -----------------------------
+             builder.HasOne(p => p.Customer)
+                    .WithMany(c => c.Projects)
+                    .HasForeignKey(p => p.CustomerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+ 
+             // -----------------------------
+             // 🔹 Project → ProjectStatus (One-to-Many)
+             // -----------------------------
+             builder.HasOne(p => p.ProjectStatus)
+                    .WithMany(ps => ps.Projects)
+                    .HasForeignKey(p => p.ProjectStatusId)
+                    .OnDelete(DeleteBehavior.Restrict);
+ 
+             // -----------------------------
+             // 🔹 Project → Standard (One-to-Many)
+             // -----------------------------
+             builder.HasOne(p => p.Standard)
+                    .WithMany(s => s.Projects)
+                    .HasForeignKey(p => p.StandardID)
+                    .OnDelete(DeleteBehavior.Cascade);
+ 
+             // -----------------------------
+             // 🔹 Project → ProjectAssignments (One-to-Many)
+             // -----------------------------
+             builder.HasMany(p => p.ProjectAssignments)
+                    .WithOne(pa => pa.Project)
+                    .HasForeignKey(pa => pa.ProjectId)
+                    .OnDelete(DeleteBehavior.Cascade);
+ 
+             // -----------------------------
+             // 🔹 Project → ProjectDocuments (One-to-Many)
+             // -----------------------------
+             builder.HasMany(p => p.ProjectDocuments)
+                    .WithOne(pd => pd.Project)
+                    .HasForeignKey(pd => pd.ProjectId)
+                    .OnDelete(DeleteBehavior.Cascade);
+             
+         }
+     }
+ }
+using iso_management_system.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace iso_management_system.Configurations.Db
+{
+    public class ProjectStatusConfiguration : IEntityTypeConfiguration<ProjectStatus>
+    {
+        public void Configure(EntityTypeBuilder<ProjectStatus> builder)
+        {
+            builder.ToTable("ProjectStatus");
+
+            builder.HasKey(ps => ps.StatusId);
+
+            builder.Property(ps => ps.StatusName)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder.HasIndex(ps => ps.StatusName).IsUnique();
+
+            builder.Property(ps => ps.Description)
+                .HasMaxLength(200);
+
+            builder.Property(ps => ps.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            builder.Property(ps => ps.ModifiedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            // One-to-Many: ProjectStatus → Projects
+            builder.HasMany(ps => ps.Projects)
+                .WithOne(p => p.ProjectStatus)
+                .HasForeignKey(p => p.ProjectStatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+    }
+}using System;
+ using System.Collections.Generic;
+ using iso_management_system.Models;
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.EntityFrameworkCore.Metadata.Builders;
+ 
+ namespace iso_management_system.Configurations.Db
+ {
+     public class RoleConfiguration : IEntityTypeConfiguration<Role>
+     {
+         public void Configure(EntityTypeBuilder<Role> builder)
+         {
+             builder.ToTable("Roles");
+ 
+             builder.HasKey(r => r.RoleID);
+ 
+             builder.Property(r => r.RoleName)
+                    .HasMaxLength(100)
+                    .IsRequired();
+ 
+             builder.HasIndex(r => r.RoleName).IsUnique();
+ 
+             builder.Property(r => r.Description)
+                    .HasMaxLength(200);
+ 
+             builder.Property(r => r.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+ 
+             builder.Property(r => r.ModifiedAt)
+                    .HasDefaultValueSql("GETDATE()");
+ 
+             // -----------------------------
+             // 🔹 Roles <-> Users (implicit many-to-many)
+             // -----------------------------
+             builder.HasMany(r => r.Users)
+                    .WithMany(u => u.Roles)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "UserRoleAssignments",
+                        j => j
+                            .HasOne<User>()
+                            .WithMany()
+                            .HasForeignKey("UserID")
+                            .HasConstraintName("FK_UserRoleAssignments_Users_UserID")
+                            .OnDelete(DeleteBehavior.Restrict),
+                        j => j
+                            .HasOne<Role>()
+                            .WithMany()
+                            .HasForeignKey("RoleID")
+                            .HasConstraintName("FK_UserRoleAssignments_Roles_RoleID")
+                            .OnDelete(DeleteBehavior.Cascade),
+                        j =>
+                        {
+                            j.ToTable("UserRoleAssignments");
+                            j.HasKey("UserID", "RoleID");
+                            j.Property<DateTime>("CreatedAt").HasDefaultValueSql("GETDATE()");
+                            j.Property<DateTime>("ModifiedAt").HasDefaultValueSql("GETDATE()");
+                        });
+ 
+             // -----------------------------
+             // 🔹 Roles <-> Permissions (implicit many-to-many)
+             // -----------------------------
+             builder.HasMany(r => r.Permissions)
+                    .WithMany(p => p.Roles)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "RolePermissionMappings",
+                        j => j
+                            .HasOne<Permission>()
+                            .WithMany()
+                            .HasForeignKey("PermissionID")
+                            .HasConstraintName("FK_RolePermissionMappings_Permissions_PermissionID")
+                            .OnDelete(DeleteBehavior.Restrict),
+                        j => j
+                            .HasOne<Role>()
+                            .WithMany()
+                            .HasForeignKey("RoleID")
+                            .HasConstraintName("FK_RolePermissionMappings_Roles_RoleID")
+                            .OnDelete(DeleteBehavior.Cascade),
+                        j =>
+                        {
+                            j.ToTable("RolePermissionMappings");
+                            j.HasKey("RoleID", "PermissionID");
+                            j.Property<DateTime>("CreatedAt").HasDefaultValueSql("GETDATE()");
+                            j.Property<DateTime>("ModifiedAt").HasDefaultValueSql("GETDATE()");
+                        });
+ 
+             // -----------------------------
+             // 🔹 Roles <-> ProjectAssignments (explicit via ProjectRoles)
+             // -----------------------------
+             builder.HasMany(r => r.ProjectRoles)
+                    .WithOne(pr => pr.Role)
+                    .HasForeignKey(pr => pr.RoleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+         }
+     }
+ }
+using iso_management_system.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace iso_management_system.Configurations.Db
+{
+    public class StandardConfiguration : IEntityTypeConfiguration<Standard>
+    {
+        public void Configure(EntityTypeBuilder<Standard> entity)
+        {
+            entity.ToTable("Standards");
+
+            entity.HasKey(s => s.StandardID);
+
+            entity.Property(s => s.Name)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(s => s.Version)
+                .HasMaxLength(50)
+                .IsRequired(false);
+
+            entity.Property(s => s.PublishedDate)
+                .IsRequired(false);
+
+            entity.Property(s => s.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            entity.Property(s => s.ModifiedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            // 🔹 One-to-Many: Standard → StandardSections
+            entity.HasMany(s => s.Sections)
+                .WithOne(ss => ss.Standard)
+                .HasForeignKey(ss => ss.StandardID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 🔹 One-to-Many: Standard → Projects
+            entity.HasMany(s => s.Projects)
+                .WithOne(p => p.Standard)
+                .HasForeignKey(p => p.StandardID)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}using iso_management_system.Models;
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.EntityFrameworkCore.Metadata.Builders;
+ 
+ namespace iso_management_system.Configurations.Db
+ {
+     public class StandardSectionConfiguration : IEntityTypeConfiguration<StandardSection>
+     {
+         public void Configure(EntityTypeBuilder<StandardSection> entity)
+         {
+             entity.ToTable("StandardSections");
+ 
+             entity.HasKey(ss => ss.SectionID);
+ 
+             entity.Property(ss => ss.StandardID)
+                   .IsRequired();
+ 
+             entity.Property(ss => ss.ParentSectionID)
+                   .IsRequired(false);
+ 
+             entity.Property(ss => ss.Number)
+                   .HasMaxLength(50)
+                   .IsRequired();
+ 
+             entity.Property(ss => ss.Title)
+                   .HasMaxLength(200)
+                   .IsRequired();
+ 
+             entity.Property(ss => ss.OrderIndex)
+                   .HasDefaultValue(0);
+ 
+             entity.Property(ss => ss.CreatedAt)
+                   .HasDefaultValueSql("GETDATE()");
+ 
+             entity.Property(ss => ss.ModifiedAt)
+                   .HasDefaultValueSql("GETDATE()");
+ 
+             // 🔹 One-to-Many: Standard → StandardSection
+             entity.HasOne(ss => ss.Standard)
+                   .WithMany(s => s.Sections)
+                   .HasForeignKey(ss => ss.StandardID)
+                   .OnDelete(DeleteBehavior.Cascade);
+ 
+             // 🔹 Self-referencing: ParentSection → ChildSections
+             entity.HasOne(ss => ss.ParentSection)
+                   .WithMany(ss => ss.ChildSections)
+                   .HasForeignKey(ss => ss.ParentSectionID)
+                   .OnDelete(DeleteBehavior.Restrict); // prevent cascading delete to children
+ 
+             // 🔹 One-to-Many: StandardSection → StandardTemplate
+             entity.HasMany(ss => ss.Templates)
+                   .WithOne(st => st.Section)
+                   .HasForeignKey(st => st.SectionID)
+                   .OnDelete(DeleteBehavior.Cascade);
+         }
+     }
+ }
+using iso_management_system.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace iso_management_system.Configurations.Db
+{
+    public class StandardTemplateConfiguration : IEntityTypeConfiguration<StandardTemplate>
+    {
+        public void Configure(EntityTypeBuilder<StandardTemplate> entity)
+        {
+            entity.ToTable("StandardTemplates");
+
+            entity.HasKey(st => st.TemplateID);
+
+            entity.Property(st => st.SectionID)
+                .IsRequired();
+
+            entity.Property(st => st.FileID)
+                .IsRequired();
+
+            entity.Property(st => st.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            entity.Property(st => st.ModifiedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            // 🔹 One-to-Many: StandardSection → StandardTemplate
+            entity.HasOne(st => st.Section)
+                .WithMany(s => s.Templates)
+                .HasForeignKey(st => st.SectionID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 🔹 One-to-Many: FileStorage → StandardTemplate
+            entity.HasOne(st => st.File)
+                .WithMany(f => f.StandardTemplates)
+                .HasForeignKey(st => st.FileID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 🔹 One-to-Many: StandardTemplate → ProjectDocuments
+            entity.HasMany(st => st.ProjectDocuments)
+                .WithOne(pd => pd.Template)
+                .HasForeignKey(pd => pd.TemplateID)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}using System;
+ using System.Collections.Generic;
+ using iso_management_system.Models;
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.EntityFrameworkCore.Metadata.Builders;
+ 
+ namespace iso_management_system.Configurations.Db;
+ 
+ public class UserConfiguration : IEntityTypeConfiguration<User>
+ {
+     public void Configure(EntityTypeBuilder<User> entity)
+     {
+         entity.ToTable("Users");
+ 
+         entity.HasKey(u => u.UserID);
+ 
+         entity.Property(u => u.FirstName)
+               .HasMaxLength(100)
+               .IsRequired();
+ 
+         entity.Property(u => u.LastName) // schema: NOT NULL
+               .HasMaxLength(100)
+               .IsRequired();
+ 
+         entity.Property(u => u.Email)
+               .HasMaxLength(200)
+               .IsRequired();
+ 
+         entity.HasIndex(u => u.Email).IsUnique();
+ 
+         entity.Property(u => u.PasswordHash)
+               .HasMaxLength(500)
+               .IsRequired();
+ 
+         entity.Property(u => u.IsActive)
+               .HasDefaultValue(true);
+ 
+         entity.Property(u => u.CreatedAt)
+               .HasDefaultValueSql("GETDATE()");
+ 
+         entity.Property(u => u.ModifiedAt)
+               .HasDefaultValueSql("GETDATE()");
+ 
+         // Users <-> Roles (implicit many-to-many mapped to existing join table)
+         entity.HasMany(u => u.Roles)
+               .WithMany(r => r.Users)
+               .UsingEntity<Dictionary<string, object>>(
+                   "UserRoleAssignments", // existing table name
+                   // Right navigation: join -> Role
+                   j => j
+                       .HasOne<Role>()
+                       .WithMany()
+                       .HasForeignKey("RoleID")
+                       .HasConstraintName("FK_UserRoleAssignments_Roles_RoleID")
+                       .OnDelete(DeleteBehavior.Restrict),
+                   // Left navigation: join -> User
+                   j => j
+                       .HasOne<User>()
+                       .WithMany()
+                       .HasForeignKey("UserID")
+                       .HasConstraintName("FK_UserRoleAssignments_Users_UserID")
+                       .OnDelete(DeleteBehavior.Restrict),
+                   // Configure the join table shape
+                   j =>
+                   {
+                       j.ToTable("UserRoleAssignments");
+                       j.HasKey("UserID", "RoleID");
+                       // map timestamp columns if you still have them in DB (optional)
+                       j.Property<DateTime>("CreatedAt").HasDefaultValueSql("GETDATE()");
+                       j.Property<DateTime>("ModifiedAt").HasDefaultValueSql("GETDATE()");
+                   });
+         
+         
+         // 🔹 One-to-Many: User → ProjectAssignments
+         entity.HasMany(u => u.ProjectAssignments)
+               .WithOne(pa => pa.User)
+               .HasForeignKey(pa => pa.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
+ 
+         // 🔹 One-to-Many: User → DocumentRevisions
+         entity.HasMany(u => u.DocumentRevisions)
+               .WithOne(dr => dr.ModifiedByUser)
+               .HasForeignKey(dr => dr.ModifiedByUserID)
+               .OnDelete(DeleteBehavior.SetNull);
+ 
+         // 🔹 One-to-Many: User → FileStorage (UploadedFiles)
+         entity.HasMany(u => u.UploadedFiles)
+               .WithOne(f => f.UploadedByUser)
+               .HasForeignKey(f => f.UploadedByUserID)
+               .OnDelete(DeleteBehavior.SetNull);
+     }
+ }
+
+ helll
+ CREATE DATABASE ISOManagementDB;
+ GO
+ 
+ USE ISOManagementDB;
+ GO
+ 
+ 
+ -- Users
+ CREATE TABLE [Users] (
+   [UserID] INT PRIMARY KEY IDENTITY(1, 1),
+   [FirstName] NVARCHAR(100) NOT NULL,
+   [LastName] NVARCHAR(100) NOT NULL,
+   [Email] NVARCHAR(200) UNIQUE NOT NULL,
+   [PasswordHash] NVARCHAR(500) NOT NULL,
+   [IsActive] BIT DEFAULT (1),
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE())
+ );
+ 
+ -- Roles
+ CREATE TABLE [Roles] (
+   [RoleID] INT PRIMARY KEY IDENTITY(1, 1),
+   [RoleName] NVARCHAR(100) UNIQUE NOT NULL,
+   [Description] NVARCHAR(200),
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE())
+ );
+ 
+ -- User-Role Assignments
+ CREATE TABLE [UserRoleAssignments] (
+   [UserID] INT NOT NULL,
+   [RoleID] INT NOT NULL,
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE()),
+   PRIMARY KEY ([UserID], [RoleID]),
+   FOREIGN KEY ([UserID]) REFERENCES [Users]([UserID]),
+   FOREIGN KEY ([RoleID]) REFERENCES [Roles]([RoleID])
+ );
+ 
+ -- Permissions
+ CREATE TABLE [Permissions] (
+   [PermissionID] INT PRIMARY KEY IDENTITY(1, 1),
+   [PermissionName] NVARCHAR(100) UNIQUE NOT NULL,
+   [Description] NVARCHAR(200),
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE())
+ );
+ 
+ -- Role-Permission Mapping
+ CREATE TABLE [RolePermissionMappings] (
+   [RoleID] INT NOT NULL,
+   [PermissionID] INT NOT NULL,
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE()),
+   PRIMARY KEY ([RoleID], [PermissionID]),
+   FOREIGN KEY ([RoleID]) REFERENCES [Roles]([RoleID]),
+   FOREIGN KEY ([PermissionID]) REFERENCES [Permissions]([PermissionID])
+ );
+ 
+ -- Customers
+ CREATE TABLE [Customers] (
+   [CustomerID] INT PRIMARY KEY IDENTITY(1, 1),
+   [Name] NVARCHAR(200) NOT NULL,
+   [Email] NVARCHAR(200) UNIQUE,
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE())
+ );
+ 
+ -- Standards
+ CREATE TABLE [Standards] (
+   [StandardID] INT PRIMARY KEY IDENTITY(1, 1),
+   [Name] NVARCHAR(200) NOT NULL,
+   [Version] NVARCHAR(50),
+   [PublishedDate] DATE,
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE())
+ );
+ 
+ -- Standard Sections (hierarchical)
+ CREATE TABLE [StandardSections] (
+   [SectionID] INT PRIMARY KEY IDENTITY(1, 1),
+   [StandardID] INT NOT NULL,
+   [ParentSectionID] INT NULL,
+   [Number] NVARCHAR(50) NOT NULL,
+   [Title] NVARCHAR(200) NOT NULL,
+   [OrderIndex] INT DEFAULT (0),
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE()),
+   FOREIGN KEY ([StandardID]) REFERENCES [Standards]([StandardID]),
+   FOREIGN KEY ([ParentSectionID]) REFERENCES [StandardSections]([SectionID])
+ );
+ 
+ -- File Storage (supports uploaded by user OR customer)
+ CREATE TABLE [FileStorage] (
+   [FileID] INT PRIMARY KEY IDENTITY(1, 1),
+   [FileName] NVARCHAR(200) NOT NULL,
+   [FilePath] NVARCHAR(500) NOT NULL,
+   [FileSize] BIGINT,
+   [UploadedByUserID] INT NULL,
+   [UploadedByCustomerID] INT NULL,
+   [UploadedAt] DATETIME DEFAULT (GETDATE()),
+   CONSTRAINT FK_FileStorage_User FOREIGN KEY ([UploadedByUserID]) REFERENCES [Users]([UserID]),
+   CONSTRAINT FK_FileStorage_Customer FOREIGN KEY ([UploadedByCustomerID]) REFERENCES [Customers]([CustomerID]),
+   CONSTRAINT CK_FileStorage_Uploader CHECK (
+       (UploadedByUserID IS NOT NULL AND UploadedByCustomerID IS NULL)
+    OR (UploadedByUserID IS NULL AND UploadedByCustomerID IS NOT NULL)
+   )
+ );
+ 
+ -- Standard Templates
+ CREATE TABLE [StandardTemplates] (
+   [TemplateID] INT PRIMARY KEY IDENTITY(1, 1),
+   [SectionID] INT NOT NULL,
+   [FileID] INT NOT NULL,
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE()),
+   FOREIGN KEY ([SectionID]) REFERENCES [StandardSections]([SectionID]),
+   FOREIGN KEY ([FileID]) REFERENCES [FileStorage]([FileID])
+ );
+ 
+ -- Project Status
+ CREATE TABLE [ProjectStatus] (
+   [StatusID] INT PRIMARY KEY IDENTITY(1, 1),
+   [StatusName] NVARCHAR(50) UNIQUE NOT NULL,
+   [Description] NVARCHAR(200),
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE())
+ );
+ 
+ -- Projects
+ CREATE TABLE [Projects] (
+   [ProjectID] INT PRIMARY KEY IDENTITY(1, 1),
+   [CustomerID] INT NOT NULL,
+   [StandardID] INT NOT NULL,
+   [StatusID] INT NOT NULL,
+   [StartDate] DATETIME,
+   [CompletionDate] DATETIME,
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE()),
+   FOREIGN KEY ([CustomerID]) REFERENCES [Customers]([CustomerID]),
+   FOREIGN KEY ([StandardID]) REFERENCES [Standards]([StandardID]),
+   FOREIGN KEY ([StatusID]) REFERENCES [ProjectStatus]([StatusID])
+ );
+ 
+ -- Project Assignments
+ CREATE TABLE [ProjectAssignments] (
+   [AssignmentID] INT PRIMARY KEY IDENTITY(1, 1),
+   [ProjectID] INT NOT NULL,
+   [UserID] INT NOT NULL,
+   [AssignedAt] DATETIME DEFAULT (GETDATE()),
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE()),
+   CONSTRAINT UQ_Project_User UNIQUE ([ProjectID], [UserID]),
+   FOREIGN KEY ([ProjectID]) REFERENCES [Projects]([ProjectID]),
+   FOREIGN KEY ([UserID]) REFERENCES [Users]([UserID])
+ );
+ 
+ -- Project Roles (links assignment to role)
+ CREATE TABLE [ProjectRoles] (
+   [AssignmentID] INT NOT NULL,
+   [RoleID] INT NOT NULL,
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE()),
+   PRIMARY KEY ([AssignmentID], [RoleID]),
+   FOREIGN KEY ([AssignmentID]) REFERENCES [ProjectAssignments]([AssignmentID]),
+   FOREIGN KEY ([RoleID]) REFERENCES [Roles]([RoleID])
+ );
+ 
+ -- Document Status
+ CREATE TABLE [DocumentStatuses] (
+   [StatusID] INT PRIMARY KEY IDENTITY(1, 1),
+   [StatusName] NVARCHAR(50) UNIQUE NOT NULL,
+   [Description] NVARCHAR(200),
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE())
+ );
+ 
+ -- Project Documents
+ CREATE TABLE [ProjectDocuments] (
+   [ProjectDocumentID] INT PRIMARY KEY IDENTITY(1, 1),
+   [ProjectID] INT NOT NULL,
+   [TemplateID] INT NOT NULL,
+   [FileID] INT NOT NULL,
+   [StatusID] INT NOT NULL,
+   [VersionNumber] INT DEFAULT (1),
+   [LastModifiedBy] INT ,
+   [CreatedAt] DATETIME DEFAULT (GETDATE()),
+   [ModifiedAt] DATETIME DEFAULT (GETDATE()),
+   FOREIGN KEY ([ProjectID]) REFERENCES [Projects]([ProjectID]),
+   FOREIGN KEY ([TemplateID]) REFERENCES [StandardTemplates]([TemplateID]),
+   FOREIGN KEY ([FileID]) REFERENCES [FileStorage]([FileID]),
+   FOREIGN KEY ([StatusID]) REFERENCES [DocumentStatuses]([StatusID]),
+   FOREIGN KEY ([LastModifiedBy]) REFERENCES [Users]([UserID])
+ );
+ 
+ -- Document Revisions
+ CREATE TABLE [DocumentRevisions] (
+     [RevisionID] INT PRIMARY KEY IDENTITY(1, 1),
+     [ProjectDocumentID] INT NOT NULL,
+     [FileID] INT NOT NULL,
+     [VersionNumber] INT NOT NULL,
+     [ModifiedByUserID] INT,
+     [ModifiedAt] DATETIME DEFAULT (GETDATE()),
+     [ChangeNote] NVARCHAR(500),
+     [CreatedAt] DATETIME DEFAULT (GETDATE()),
+     FOREIGN KEY ([ProjectDocumentID]) REFERENCES [ProjectDocuments]([ProjectDocumentID]),
+     FOREIGN KEY ([FileID]) REFERENCES [FileStorage]([FileID]),
+     FOREIGN KEY ([ModifiedByUserID]) REFERENCES [Users]([UserID])
+ );
