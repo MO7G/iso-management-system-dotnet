@@ -12,17 +12,10 @@ namespace iso_management_system.Configurations.Db
 
             builder.HasKey(p => p.ProjectId);
 
-            builder.Property(p => p.ProjectName)
-                   .HasMaxLength(200)
-                   .IsRequired();
-
-            builder.Property(p => p.Description)
-                   .HasMaxLength(1000);
-
             builder.Property(p => p.StartDate)
                    .HasDefaultValueSql("GETDATE()");
 
-            builder.Property(p => p.EndDate);
+            builder.Property(p => p.CompletionDate);
 
             builder.Property(p => p.CreatedAt)
                    .HasDefaultValueSql("GETDATE()");
@@ -43,7 +36,7 @@ namespace iso_management_system.Configurations.Db
             // -----------------------------
             builder.HasOne(p => p.ProjectStatus)
                    .WithMany(ps => ps.Projects)
-                   .HasForeignKey(p => p.ProjectStatusId)
+                   .HasForeignKey(p => p.StatusID) // match DB
                    .OnDelete(DeleteBehavior.Restrict);
 
             // -----------------------------
@@ -69,7 +62,6 @@ namespace iso_management_system.Configurations.Db
                    .WithOne(pd => pd.Project)
                    .HasForeignKey(pd => pd.ProjectId)
                    .OnDelete(DeleteBehavior.Cascade);
-            
         }
     }
 }

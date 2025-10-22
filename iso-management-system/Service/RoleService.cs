@@ -68,15 +68,15 @@ public class RoleService
         var role = _roleRepository.GetRoleWithUsers(roleId);
         if (role == null)
             throw new NotFoundException($"Role with ID {roleId} not found.");
-
+        
+        
         // Business rule: cannot delete role assigned to users
         if (role.Users.Any()) // use the navigation collection, not UserRoleAssignments
         {
             Console.WriteLine("Role is assigned to users, cannot delete.");
             throw new BusinessRuleException("Cannot delete role because it is assigned to users.");
         }
-
-       _roleRepository.DeleteRole(role);
+        _roleRepository.DeleteRole(role);
     }
     
 }

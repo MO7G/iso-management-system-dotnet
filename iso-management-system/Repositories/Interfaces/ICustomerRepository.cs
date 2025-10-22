@@ -1,6 +1,14 @@
+using System.Collections.Generic;
+using iso_management_system.Models;
+
 namespace iso_management_system.Repositories.Interfaces;
 
-public class ICustomerRepository
+public interface ICustomerRepository
 {
-    
+    IEnumerable<Customer> GetAllCustomers();
+    Customer GetCustomerById(int customerId);
+    bool EmailExists(string? email);
+    void AddCustomer(Customer customer);
+    Customer GetCustomerWithProjects(int customerId);
+    void DeleteCustomer(Customer customer);
 }

@@ -30,7 +30,7 @@ namespace iso_management_system.Configurations.Db
             // One-to-Many: ProjectStatus → Projects
             builder.HasMany(ps => ps.Projects)
                 .WithOne(p => p.ProjectStatus)
-                .HasForeignKey(p => p.ProjectStatusId)
+                .HasForeignKey(p => p.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

@@ -20,8 +20,6 @@ public class RoleController : ControllerBase
     {
         _roleService = roleService;
     }
-
-    
     
     // get all roles
     [HttpGet("roles")]

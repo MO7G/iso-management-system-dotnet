@@ -1,6 +1,59 @@
+using System.Collections.Generic;
+using iso_management_system.Attributes;
+using iso_management_system.Dto.Customer;
+using iso_management_system.DTOs;
+using iso_management_system.Helpers;
+using iso_management_system.Services;
+using iso_management_system.Shared;
+using Microsoft.AspNetCore.Mvc;
+
 namespace iso_management_system.Controllers;
 
-public class CustomerController
+[ApiController]
+[ValidateModel]
+[Route("api/[controller]")]
+public class CustomerController : ControllerBase
 {
-    
+    private readonly CustomerService _customerService;
+
+    public CustomerController(CustomerService customerService)
+    {
+        _customerService = customerService;
+    }
+
+    // Get all customers
+    [HttpGet("customers")]
+    public ActionResult<ApiResponseWrapper<IEnumerable<CustomerResponseDTO>>> GetCustomers()
+    {
+        var customers = _customerService.GetAllCustomers();
+        return Ok(ApiResponse.Ok(customers, "Customers fetched successfully"));
+    }
+
+    // Get customer by ID
+    [HttpGet("{customerId}")]
+    public ActionResult<ApiResponseWrapper<CustomerResponseDTO>> GetCustomerById(int customerId)
+    {
+        var customer = _customerService.GetCustomerById(customerId);
+        return Ok(ApiResponse.Ok(customer, "Customer fetched successfully"));
+    }
+
+    // Create a new customer
+    [HttpPost("create")]
+    public ActionResult<ApiResponseWrapper<CustomerResponseDTO>> CreateCustomer([FromBody] CustomerRequestDTO dto)
+    {
+        var created = _customerService.CreateCustomer(dto);
+        return CreatedAtAction(
+            nameof(GetCustomerById),
+            new { customerId = created.CustomerID },
+            ApiResponse.Created(created, "Customer created successfully")
+        );
+    }
+
+    // Delete customer
+    [HttpDelete("delete/{customerId}")]
+    public ActionResult<ApiResponseWrapper<object>> DeleteCustomer(int customerId)
+    {
+        _customerService.DeleteCustomer(customerId);
+        return Ok(ApiResponse.Ok<object>(null, "Customer deleted successfully"));
+    }
 }

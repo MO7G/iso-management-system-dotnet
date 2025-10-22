@@ -19,8 +19,8 @@ namespace iso_management_system.Mappers
                 Permissions = role.Permissions
                     .Select(p => new PermissionResponseDTO
                     {
-                        Id = p.PermissionID,
-                        Name = p.PermissionName
+                        PermissionID = p.PermissionID,
+                        PermissionName = p.PermissionName
                     })
                     .ToList()
             };
