@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,24 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        // Throws an error if the incoming JSON contains properties
+        // that **do not exist** in the target DTO or model.
+        // This helps prevent clients from sending extra/unexpected fields.
+        options.SerializerSettings.MissingMemberHandling = MissingMemberHandling.Error;
+
+        // Prevents infinite loops when serializing objects that have
+        // circular references (e.g., Parent → Child → Parent).
+        // Without this, JSON serialization can throw an exception.
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+
+        // Ignores properties with null values when serializing objects to JSON.
+        // This makes the JSON output cleaner by omitting fields that have no value.
+        options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+    });
 
 
 

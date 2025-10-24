@@ -51,6 +51,12 @@ public class CustomerRepository : ICustomerRepository
             .FirstOrDefault(c => c.CustomerID == customerId);
     }
 
+    public bool CustomerExists(int customerId)
+    {
+        return _context.Customers.Any(c => c.CustomerID == customerId);
+    }
+
+    
     public void DeleteCustomer(Customer customer)
     {
         _context.Customers.Remove(customer);

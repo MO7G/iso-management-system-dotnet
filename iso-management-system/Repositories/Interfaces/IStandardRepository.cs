@@ -10,5 +10,8 @@ namespace iso_management_system.Repositories.Interfaces
         bool StandardNameExists(string name);
         void AddStandard(Standard standard);
         void DeleteStandard(Standard standard);
+        
+        bool StandardExists(int standardId);
+
     }
 }

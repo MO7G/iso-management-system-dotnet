@@ -1,3 +1,4 @@
+using System.Linq;
 using iso_management_system.Dto.User;
 using iso_management_system.Helpers;
 using iso_management_system.Models;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using iso_management_system.Attributes;
 using iso_management_system.Dto.Customer;
@@ -6,6 +7,7 @@ using iso_management_system.Helpers;
 using iso_management_system.Services;
 using iso_management_system.Shared;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json; // or System.Text.Json
 
 namespace iso_management_system.Controllers;
 
@@ -41,6 +43,8 @@ public class CustomerController : ControllerBase
     [HttpPost("create")]
     public ActionResult<ApiResponseWrapper<CustomerResponseDTO>> CreateCustomer([FromBody] CustomerRequestDTO dto)
     {
+
+        Console.WriteLine("this is the dto: " + JsonConvert.SerializeObject(dto));
         var created = _customerService.CreateCustomer(dto);
         return CreatedAtAction(
             nameof(GetCustomerById),

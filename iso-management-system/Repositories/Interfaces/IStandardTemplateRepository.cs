@@ -1,6 +1,15 @@
-namespace iso_management_system.Repositories.Interfaces;
+using System.Collections.Generic;
+using iso_management_system.Models;
 
-public class IStandardTemplateRepository
+namespace iso_management_system.Repositories.Interfaces
 {
-    
+    public interface IStandardTemplateRepository
+    {
+        void AddTemplate(StandardTemplate template);
+        StandardTemplate? GetTemplateById(int templateId);
+        IEnumerable<StandardTemplate> GetTemplatesBySection(int sectionId);
+        IEnumerable<StandardTemplate> GetTemplatesByStandard(int standardId);
+
+        void SaveChanges();
+    }
 }

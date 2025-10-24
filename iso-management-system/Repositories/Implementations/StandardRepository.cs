@@ -47,5 +47,11 @@ namespace iso_management_system.Repositories.Implementations
             _context.Standards.Remove(standard);
             _context.SaveChanges();
         }
+        
+        public bool StandardExists(int standardId)
+        {
+            return _context.Standards.Any(s => s.StandardID == standardId);
+        }
+
     }
 }

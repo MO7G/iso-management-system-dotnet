@@ -1,6 +1,15 @@
-namespace iso_management_system.Repositories.Interfaces;
+// Repositories/Interfaces/IStandardSectionRepository.cs
+using System.Collections.Generic;
+using iso_management_system.Models;
 
-public class IStandardSectionRepository
+namespace iso_management_system.Repositories.Interfaces
 {
-    
+    public interface IStandardSectionRepository
+    {
+        IEnumerable<StandardSection> GetSectionsByStandard(int standardId);
+        StandardSection? GetSectionById(int id);
+        void AddSection(StandardSection section);
+        void DeleteSection(StandardSection section);
+        void SaveChanges();
+    }
 }

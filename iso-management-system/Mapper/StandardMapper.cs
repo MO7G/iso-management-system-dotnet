@@ -7,6 +7,9 @@ namespace iso_management_system.Mappers
 {
     public static class StandardMapper
     {
+        // -------------------------------
+        // Standard mappings
+        // -------------------------------
         public static StandardResponseDTO ToResponseDTO(Standard standard)
         {
             return new StandardResponseDTO
@@ -27,6 +30,37 @@ namespace iso_management_system.Mappers
                 Name = dto.Name,
                 Version = dto.Version,
                 PublishedDate = dto.PublishedDate,
+                CreatedAt = DateTime.Now,
+                ModifiedAt = DateTime.Now
+            };
+        }
+
+        // -------------------------------
+        // StandardSection mappings
+        // -------------------------------
+        public static StandardSectionResponseDTO ToSectionResponseDTO(StandardSection section)
+        {
+            return new StandardSectionResponseDTO
+            {
+                SectionID = section.SectionID,
+                StandardID = section.StandardID,
+                ParentSectionID = section.ParentSectionID,
+                Number = section.Number,
+                Title = section.Title,
+                OrderIndex = section.OrderIndex,
+                CreatedAt = section.CreatedAt,
+            };
+        }
+
+        public static StandardSection ToSectionEntity(StandardSectionRequestDTO dto)
+        {
+            return new StandardSection
+            {
+                StandardID = dto.StandardID,
+                ParentSectionID = dto.ParentSectionID,
+                Number = dto.Number,
+                Title = dto.Title,
+                OrderIndex = dto.OrderIndex,
                 CreatedAt = DateTime.Now,
                 ModifiedAt = DateTime.Now
             };
