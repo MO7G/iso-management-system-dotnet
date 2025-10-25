@@ -6,6 +6,7 @@ using iso_management_system.Dto.Stander;
 using iso_management_system.DTOs;
 using iso_management_system.Exceptions;
 using iso_management_system.Mappers;
+using iso_management_system.models;
 using iso_management_system.Models;
 using iso_management_system.Repositories.Interfaces;
 
@@ -18,17 +19,19 @@ namespace iso_management_system.Services
         private readonly IStandardSectionRepository _standardSectionRepository;
         private readonly IStandardTemplateRepository _standardTemplateRepository;
         private readonly FileStorageService _fileStorageService;
+        private readonly IUserRepository _userRepository;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public StandardService(
-            IStandardRepository standardRepository,
-            IStandardSectionRepository standardSectionRepository,
-            FileStorageService fileStorageService,
-            IStandardTemplateRepository standardTemplateRepository)
+        public StandardService(IStandardRepository standardRepository, IStandardSectionRepository standardSectionRepository, IStandardTemplateRepository standardTemplateRepository, FileStorageService fileStorageService, IUserRepository userRepository, ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
         {
             _standardRepository = standardRepository;
             _standardSectionRepository = standardSectionRepository;
-            _fileStorageService = fileStorageService;
             _standardTemplateRepository = standardTemplateRepository;
+            _fileStorageService = fileStorageService;
+            _userRepository = userRepository;
+            _customerRepository = customerRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public IEnumerable<StandardResponseDTO> GetAllStandards()
@@ -120,29 +123,67 @@ namespace iso_management_system.Services
         // -----------------------------
 // File uploads + store in StandardTemplate
 // -----------------------------
-        public FileStorageResponseDTO UploadFileForUser(int standardId, int sectionId, FileUploadRequestDTO dto)
+      public async Task<FileStorageResponseDTO> UploadFileForUser(int standardId, int sectionId, FileUploadRequestDTO dto)
+{
+    Console.WriteLine($"Starting upload for user {dto.UserID}, section {sectionId}");
+    
+    var section = _standardSectionRepository.GetSectionById(sectionId);
+    if (section == null || section.StandardID != standardId)
+        throw new NotFoundException("Section not found or does not belong to the standard.");
+    
+    Console.WriteLine("Section validated");
+
+    var user = _userRepository.GetUserById(dto.UserID.Value);
+    if (user == null)
+        throw new NotFoundException("User not found");
+
+    Console.WriteLine("User validated");
+
+    await using var transaction = await _unitOfWork.BeginTransactionAsync();
+    try
+    {
+        Console.WriteLine("Transaction started");
+        
+        // Upload file
+        var file = _fileStorageService.UploadUserFile(dto);
+        Console.WriteLine("1 - File uploaded to service");
+        
+        // Save file entity
+        await _unitOfWork.SaveChangesAsync();
+        Console.WriteLine("2 - File saved to database");
+        
+        // Create template
+        var template = new StandardTemplate
         {
-            var section = _standardSectionRepository.GetSectionById(sectionId);
-            if (section == null || section.StandardID != standardId)
-                throw new NotFoundException("Section not found or does not belong to the standard.");
+            SectionID = sectionId,
+            FileID = file.FileID,
+            CreatedAt = DateTime.Now,
+            ModifiedAt = DateTime.Now
+        };
+        _standardTemplateRepository.AddTemplate(template);
+        Console.WriteLine("3 - Template created");
 
-            // Upload file
-            var file = _fileStorageService.UploadUserFile(dto);
+        await _unitOfWork.SaveChangesAsync();
+        Console.WriteLine("4 - Template saved");
 
-            // Create StandardTemplate linking this file to the section
-            var template = new StandardTemplate
-            {
-                SectionID = sectionId,
-                FileID = file.FileID,
-                CreatedAt = DateTime.Now,
-                ModifiedAt = DateTime.Now
-            };
+        await _unitOfWork.CommitAsync();
+        Console.WriteLine("5 - Transaction committed");
+        
+        // Return mapped DTO, not the entity
+        var response = FileStorageMapper.ToResponseDTO(file);
+        Console.WriteLine("6 - Response mapped to DTO");
+        
+        return response;
+    }
+    catch (Exception ex)
+    {
+        await _unitOfWork.RollbackAsync();
+        Console.WriteLine($"ERROR in transaction: {ex.Message}");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        throw;
+    }
+}
 
-            _standardTemplateRepository.AddTemplate(template);
-            _standardTemplateRepository.SaveChanges();
-
-            return file;
-        }
 
         public FileStorageResponseDTO UploadFileForCustomer(int standardId, int sectionId, FileUploadRequestDTO dto)
         {

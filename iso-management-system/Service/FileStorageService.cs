@@ -16,10 +16,11 @@ namespace iso_management_system.Services
         public FileStorageService(IFileStorageRepository fileStorageRepository)
         {
             _fileStorageRepository = fileStorageRepository;
+
         }
 
         // Simulated upload for a user
-        public FileStorageResponseDTO UploadUserFile(FileUploadRequestDTO dto)
+        public FileStorage UploadUserFile(FileUploadRequestDTO dto)
         {
             if (dto.File == null)
                 throw new BadRequestException("No file provided.");
@@ -30,16 +31,14 @@ namespace iso_management_system.Services
                 FilePath = $"simulated/path/{Guid.NewGuid()}{Path.GetExtension(dto.File.FileName)}",
                 FileSize = dto.File.Length,
                 UploadedAt = DateTime.Now,
-                UploadedByUserID = dto.UserID,
+                UploadedByUserID = dto.UserID.Value,
                 UploadedByCustomerID = null
             };
 
-
             _fileStorageRepository.Add(fileEntity);
-            _fileStorageRepository.SaveChanges();
-
-            return FileStorageMapper.ToResponseDTO(fileEntity);
+            return fileEntity; // return entity instead of DTO
         }
+
 
         // Simulated upload for a customer
         public FileStorageResponseDTO UploadCustomerFile(FileUploadRequestDTO dto)

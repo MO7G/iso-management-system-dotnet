@@ -9,6 +9,7 @@ using iso_management_system.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace iso_management_system.Middleware;
 
@@ -17,11 +18,13 @@ public class GlobalExceptionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<GlobalExceptionMiddleware> _logger;
+    private readonly bool _showFullExceptionDetails; // <-- add this flag
 
-    public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
+    public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger, IConfiguration config)
     {
         _next = next;
         _logger = logger;
+        _showFullExceptionDetails = config.GetValue<bool>("AppSettings:ShowFullExceptionDetails");
     }
 
     public async Task Invoke(HttpContext context)
@@ -32,9 +35,22 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception");
+            if (_showFullExceptionDetails)
+            {
+                // Development mode — log message and stack trace explicitly
+                _logger.LogError("Unhandled exception: {Message} | {StackTrace}", 
+                    ex.GetBaseException().Message, 
+                    ex.GetBaseException().StackTrace);
+            }
+            else
+            {
+                // Production mode — only log short message
+                _logger.LogError("Unhandled exception: {Message}", ex.GetBaseException().Message);
+            }
+
             await HandleExceptionAsync(context, ex);
         }
+
     }
 
     private static Task HandleExceptionAsync(HttpContext context, Exception ex)

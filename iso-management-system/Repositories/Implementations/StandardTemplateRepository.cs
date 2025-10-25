@@ -13,6 +13,8 @@ namespace iso_management_system.Repositories.Implementations
         public StandardTemplateRepository(AppDbContext context)
         {
             _context = context;
+            Console.WriteLine($"UserRepository DbContext Hash: {_context.GetHashCode()}");
+
         }
 
         public void AddTemplate(StandardTemplate template)

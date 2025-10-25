@@ -31,6 +31,25 @@ namespace iso_management_system.Extensions
                     services.AddScoped(type); // registers as itself
                 }
             }
+            
+            
+            // 3️⃣ Register UnitOfWork
+            foreach (var type in assembly.GetTypes())
+            {
+                if (type.IsClass && !type.IsAbstract && type.Name == "UnitOfWork")
+                {
+                    var iface = type.GetInterface("IUnitOfWork");
+                    if (iface != null)
+                    {
+                        services.AddScoped(iface, type); // register with interface
+                    }
+                    else
+                    {
+                        services.AddScoped(type); // register as self if no interface
+                    }
+                }
+            }
+
         }
     }
 }

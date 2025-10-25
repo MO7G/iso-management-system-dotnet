@@ -9,6 +9,7 @@ namespace iso_management_system.Dto.FileStorage
         public string FilePath { get; set; } = null!;
         public long FileSize { get; set; }
         public DateTime UploadedAt { get; set; }
+        
         public int? UserID { get; set; }
         public int? CustomerID { get; set; }
     }

@@ -90,12 +90,12 @@ namespace iso_management_system.Controllers
         // Upload file as a User
         // -----------------------------
         [HttpPost("{standardId}/sections/{sectionId}/upload/user")]
-        public ActionResult<ApiResponseWrapper<FileStorageResponseDTO>> UploadFileForUser(
+        public async Task<ActionResult<ApiResponseWrapper<FileStorageResponseDTO>>> UploadFileForUser(
             int standardId,
             int sectionId,
             [FromForm] FileUploadRequestDTO dto)
         {
-            var result = _standardService.UploadFileForUser(standardId, sectionId, dto);
+            FileStorageResponseDTO result = await _standardService.UploadFileForUser(standardId, sectionId, dto);
             return CreatedAtAction(nameof(UploadFileForUser),
                 ApiResponse.Created(result, "File uploaded for user successfully"));
         }
