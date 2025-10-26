@@ -4,6 +4,7 @@ using iso_management_system.Attributes;
 using iso_management_system.Dto.Customer;
 using iso_management_system.DTOs;
 using iso_management_system.Helpers;
+using iso_management_system.Mappers;
 using iso_management_system.Services;
 using iso_management_system.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,18 @@ public class CustomerController : ControllerBase
         var customer = _customerService.GetCustomerById(customerId);
         return Ok(ApiResponse.Ok(customer, "Customer fetched successfully"));
     }
+    
+    [HttpPatch("update/{customerId}")]
+    public ActionResult<ApiResponseWrapper<CustomerResponseDTO>> UpdateCustomer(
+        int customerId,
+        [FromBody] CustomerUpdateDTO dto)
+    {
+        // Delegate everything to the service
+        var updatedDto = _customerService.UpdateCustomer(customerId, dto);
+
+        return Ok(ApiResponse.Ok(updatedDto, "Customer updated successfully"));
+    }
+    
 
     // Create a new customer
     [HttpPost("create")]

@@ -63,4 +63,20 @@ public class RoleController : ControllerBase
         _roleService.DeleteRole(roleId); // throws exceptions if something goes wrong
         return Ok(ApiResponse.Ok<object>(null, "Role deleted successfully"));
     }
+    
+    // === Add permission to role ===
+    [HttpPost("permissions/add")]
+    public ActionResult<ApiResponseWrapper<object>> AddPermissionToRole([FromBody] RolePermissionRequestDTO dto)
+    {
+        _roleService.AddPermissionToRole(dto.RoleId.Value, dto.PermissionId.Value);
+        return Ok(ApiResponse.Ok<object>(null, "Permission added to role successfully."));
+    }
+
+    // === Remove permission from role ===
+    [HttpPost("permissions/remove")]
+    public ActionResult<ApiResponseWrapper<object>> RemovePermissionFromRole([FromBody] RolePermissionRequestDTO dto)
+    {
+        _roleService.RemovePermissionFromRole(dto.RoleId.Value, dto.PermissionId.Value);
+        return Ok(ApiResponse.Ok<object>(null, "Permission removed from role successfully."));
+    }
 }

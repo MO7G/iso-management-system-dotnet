@@ -14,11 +14,13 @@ namespace iso_management_system.Services;
 public class RoleService
 {
     private readonly IRoleRepository _roleRepository;
+    private readonly IPermissionRepository _permissionRepository;
 
     
-    public RoleService(IRoleRepository roleRepository)
+    public RoleService(IRoleRepository roleRepository , IPermissionRepository permissionRepository)
     {
         _roleRepository = roleRepository;
+        _permissionRepository = permissionRepository;
     }
     
     
@@ -78,5 +80,40 @@ public class RoleService
         }
         _roleRepository.DeleteRole(role);
     }
-    
+    // === Add permission to role ===
+    public void AddPermissionToRole(int roleId, int permissionId)
+    {
+        var role = _roleRepository.GetRoleByIdWithPermissions(roleId);
+        if (role == null)
+            throw new NotFoundException($"Role with ID {roleId} not found.");
+
+        var permission = _permissionRepository.GetPermissionById(permissionId);
+        if (permission == null)
+            throw new NotFoundException($"Permission with ID {permissionId} not found.");
+
+        // Check if permission is already assigned
+        if (role.Permissions.Any(p => p.PermissionID == permissionId))
+            throw new BusinessRuleException("Permission already assigned to role.");
+
+        
+        // Add permission
+        role.Permissions.Add(permission);
+        _roleRepository.SaveChanges(); // Add this method in RoleRepository to call _context.SaveChanges()
+    }
+
+    // === Remove permission from role ===
+    public void RemovePermissionFromRole(int roleId, int permissionId)
+    {
+        var role = _roleRepository.GetRoleByIdWithPermissions(roleId);
+        if (role == null)
+            throw new NotFoundException($"Role with ID {roleId} not found.");
+
+        var permission = role.Permissions.FirstOrDefault(p => p.PermissionID == permissionId);
+        if (permission == null)
+            throw new BusinessRuleException("Permission not assigned to this role.");
+
+        // Remove permission
+        role.Permissions.Remove(permission);
+        _roleRepository.SaveChanges();
+    }
 }

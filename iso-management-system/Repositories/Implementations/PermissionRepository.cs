@@ -28,9 +28,10 @@ public class PermissionRepository : IPermissionRepository
     {
         return _context.Permissions
             .Include(p => p.Roles)
-            .AsNoTracking()
+            //.AsNoTracking()  <-- REMOVE this
             .FirstOrDefault(p => p.PermissionID == permissionId);
     }
+
 
     public bool PermissionNameExists(string permissionName)
     {

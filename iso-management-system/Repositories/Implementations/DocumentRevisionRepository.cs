@@ -30,6 +30,12 @@ namespace iso_management_system.Repositories.Implementations
                 _context.DocumentRevisions.RemoveRange(revisions);
             }
         }
+        
+        public void Add(DocumentRevision revision)
+        {
+            _context.DocumentRevisions.Add(revision);
+        }
+        
 
         public void SaveChanges()
         {

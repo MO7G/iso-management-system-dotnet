@@ -39,7 +39,11 @@ namespace iso_management_system.Repositories.Implementations
                 .FirstOrDefault(r => r.RoleID == id);
         }
 
-        
+        public void AttachEntity<T>(T entity) where T : class
+{
+    _context.Attach(entity);
+}
+
         public void AddRole(Role role)
         {
             _context.Roles.Add(role);
@@ -62,6 +66,15 @@ namespace iso_management_system.Repositories.Implementations
 
             return exists;
         }
-
+        public Role? GetRoleByIdWithPermissions(int id)
+        {
+            return _context.Roles
+                .Include(r => r.Permissions) // Eager load permissions
+                .FirstOrDefault(r => r.RoleID == id);
+        }
+        public void SaveChanges()
+        {
+            _context.SaveChanges();
+        }
     }
 }

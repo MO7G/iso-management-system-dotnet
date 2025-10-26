@@ -11,7 +11,8 @@ public interface ICustomerRepository
     void AddCustomer(Customer customer);
     Customer GetCustomerWithProjects(int customerId);
     void DeleteCustomer(Customer customer);
-    
+    void UpdateCustomer(Customer customer);
+
     bool CustomerExists(int customerId);
 
     

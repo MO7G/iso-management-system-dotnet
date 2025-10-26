@@ -8,6 +8,9 @@ namespace iso_management_system.Repositories.Interfaces
     {
         IEnumerable<DocumentRevision> GetByProjectDocument(int projectDocumentId);
         void DeleteRevisions(IEnumerable<DocumentRevision> revisions);
+        
+        void Add(DocumentRevision revision);
+
         void SaveChanges();
     }
 }

@@ -9,6 +9,8 @@ using iso_management_system.Repositories.Interfaces;
 
 namespace iso_management_system.Services;
 
+
+
 public class CustomerService
 {
     private readonly ICustomerRepository _customerRepository;
@@ -32,6 +34,11 @@ public class CustomerService
 
         return CustomerMapper.ToResponseDTO(customer);
     }
+    
+    
+ 
+
+    
 
     public CustomerResponseDTO CreateCustomer(CustomerRequestDTO dto)
     {
@@ -42,6 +49,29 @@ public class CustomerService
         _customerRepository.AddCustomer(customer);
         return CustomerMapper.ToResponseDTO(customer);
     }
+    
+    
+    public CustomerResponseDTO UpdateCustomer(int customerId, CustomerUpdateDTO dto)
+    {
+        // Fetch entity
+        var customer = _customerRepository.GetCustomerById(customerId);
+        if (customer == null)
+            throw new NotFoundException($"Customer with ID {customerId} not found.");
+
+        // Apply updates only if the field was sent
+        if (dto.NameHasValue) customer.Name = dto.Name;
+        if (dto.EmailHasValue) customer.Email = dto.Email;
+
+        // Update modified timestamp
+        customer.ModifiedAt = DateTime.Now;
+
+        // Persist changes via repository
+        _customerRepository.UpdateCustomer(customer);
+        var updatedDto = CustomerMapper.ToResponseDTO(customer);
+        return updatedDto;
+    }
+
+    
 
     public void DeleteCustomer(int customerId)
     {

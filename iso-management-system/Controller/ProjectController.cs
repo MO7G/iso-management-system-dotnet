@@ -1,4 +1,5 @@
 using iso_management_system.Attributes;
+using iso_management_system.Dto.FileStorage;
 using iso_management_system.Dto.Project;
 using iso_management_system.Helpers;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +47,23 @@ namespace iso_management_system.Controllers
         }
 
         
+        
+        // -----------------------------
+        // Upload file as a Customer
+        // -----------------------------
+        [HttpPost("standard/{standardId}/sections/{sectionId}/upload/customer")]
+        public async Task<ActionResult<ApiResponseWrapper<FileStorageResponseDTO>>> UploadFileForCustomer(
+            int standardId,
+            int sectionId,
+            [FromForm] FileUploadCustomerRequestDTO dto)
+        {
+            // Directly call the service; all validation and exceptions are handled there
+            var result = await _projectService.UploadFileForCustomer(standardId, sectionId, dto);
 
+            // Return 201 Created with the result
+            return CreatedAtAction(nameof(UploadFileForCustomer),
+                ApiResponse.Created(result, "File uploaded for customer successfully"));
+        }
         
     }
 }

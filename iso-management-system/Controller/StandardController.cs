@@ -100,19 +100,7 @@ namespace iso_management_system.Controllers
                 ApiResponse.Created(result, "File uploaded for user successfully"));
         }
 
-        // -----------------------------
-        // Upload file as a Customer
-        // -----------------------------
-        [HttpPost("{standardId}/sections/{sectionId}/upload/customer")]
-        public ActionResult<ApiResponseWrapper<FileStorageResponseDTO>> UploadFileForCustomer(
-            int standardId,
-            int sectionId,
-            [FromForm] FileUploadRequestDTO dto)
-        {
-            var result = _standardService.UploadFileForCustomer(standardId, sectionId, dto);
-            return CreatedAtAction(nameof(UploadFileForCustomer),
-                ApiResponse.Created(result, "File uploaded for customer successfully"));
-        }
+       
         
     }
 }

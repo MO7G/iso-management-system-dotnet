@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using iso_management_system.Dto.FileStorage;
+using iso_management_system.Dto.Project;
 using iso_management_system.DTOs;
 using iso_management_system.Exceptions;
 using iso_management_system.Mappers;
@@ -41,7 +42,7 @@ namespace iso_management_system.Services
 
 
         // Simulated upload for a customer
-        public FileStorageResponseDTO UploadCustomerFile(FileUploadRequestDTO dto)
+        public FileStorage UploadCustomerFile(FileUploadCustomerRequestDTO dto)
         {
             if (dto.File == null)
                 throw new BadRequestException("No file provided.");
@@ -57,9 +58,9 @@ namespace iso_management_system.Services
             };
 
             _fileStorageRepository.Add(fileEntity);
-            _fileStorageRepository.SaveChanges();
-
-            return FileStorageMapper.ToResponseDTO(fileEntity);
+            //_fileStorageRepository.SaveChanges();
+            return fileEntity;
+            //return FileStorageMapper.ToResponseDTO(fileEntity);
         }
     }
 }

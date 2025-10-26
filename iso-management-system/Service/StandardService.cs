@@ -72,8 +72,6 @@ namespace iso_management_system.Services
         
         
         
-        
-        
         public IEnumerable<StandardSectionResponseDTO> GetSectionsByStandard(int standardId)
         {
             var sections = _standardSectionRepository.GetSectionsByStandard(standardId);
@@ -184,30 +182,7 @@ namespace iso_management_system.Services
     }
 }
 
-
-        public FileStorageResponseDTO UploadFileForCustomer(int standardId, int sectionId, FileUploadRequestDTO dto)
-        {
-            var section = _standardSectionRepository.GetSectionById(sectionId);
-            if (section == null || section.StandardID != standardId)
-                throw new NotFoundException("Section not found or does not belong to the standard.");
-
-            // Upload file
-            var file = _fileStorageService.UploadCustomerFile(dto);
-
-            // Create StandardTemplate linking this file to the section
-            var template = new StandardTemplate
-            {
-                SectionID = sectionId,
-                FileID = file.FileID,
-                CreatedAt = DateTime.Now,
-                ModifiedAt = DateTime.Now
-            };
-
-            _standardTemplateRepository.AddTemplate(template);
-            _standardTemplateRepository.SaveChanges();
-
-            return file;
-        }
+      
 
         
         

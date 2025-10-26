@@ -23,11 +23,5 @@ public class FileStorageController : ControllerBase
         var result = _service.UploadUserFile(dto);
         return CreatedAtAction(nameof(UploadUserFile), ApiResponse.Created(result, "User file metadata saved successfully"));
     }
-
-    [HttpPost("upload/customer")]
-    public ActionResult<ApiResponseWrapper<FileStorageResponseDTO>> UploadCustomerFile([FromForm] FileUploadRequestDTO dto)
-    {
-        var result = _service.UploadCustomerFile(dto);
-        return CreatedAtAction(nameof(UploadCustomerFile), ApiResponse.Created(result, "Customer file metadata saved successfully"));
-    }
+    
 }

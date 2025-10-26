@@ -25,6 +25,10 @@ namespace iso_management_system.Repositories.Implementations
             return _context.ProjectDocuments
                 .Where(pd => pd.ProjectId == projectId)
                 .ToList();
+        } public ProjectDocuments? GetById(int projectDocumentId)
+        {
+            return _context.ProjectDocuments
+                .FirstOrDefault(pd => pd.ProjectDocumentID == projectDocumentId);
         }
 
         public void DeleteDocumentRevisions(int projectDocumentId)

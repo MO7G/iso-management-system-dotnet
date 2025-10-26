@@ -28,10 +28,18 @@ public class CustomerRepository : ICustomerRepository
     {
         return _context.Customers
             .Include(c => c.Projects)
-            .AsNoTracking()
+            .AsNoTracking() // read-only
             .FirstOrDefault(c => c.CustomerID == customerId);
     }
 
+    
+    public Customer GetTrackedCustomerById(int customerId)
+    {
+        return _context.Customers
+            .Include(c => c.Projects)
+            .FirstOrDefault(c => c.CustomerID == customerId); // tracked
+    }
+    
     public bool EmailExists(string? email)
     {
         if (string.IsNullOrEmpty(email)) return false;
@@ -51,6 +59,24 @@ public class CustomerRepository : ICustomerRepository
             .FirstOrDefault(c => c.CustomerID == customerId);
     }
 
+    
+    public void UpdateCustomer(Customer customer)
+    {
+        // Attach the entity if it's not already tracked
+        var tracked = _context.Customers.Local.FirstOrDefault(c => c.CustomerID == customer.CustomerID);
+        if (tracked == null)
+        {
+            _context.Customers.Attach(customer);
+        }
+
+        // Mark entity as modified
+        _context.Entry(customer).State = EntityState.Modified;
+
+        // Save changes
+        _context.SaveChanges();
+    }
+
+    
     public bool CustomerExists(int customerId)
     {
         return _context.Customers.Any(c => c.CustomerID == customerId);

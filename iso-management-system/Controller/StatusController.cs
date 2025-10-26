@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using iso_management_system.Attributes;
 using iso_management_system.Dto.Status;
 using iso_management_system.DTOs;
 using iso_management_system.Helpers;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace iso_management_system.Controllers;
 
 [ApiController]
+[ValidateModel]
 [Route("api/[controller]")]
 public class StatusController : ControllerBase
 {
@@ -61,7 +63,8 @@ public class StatusController : ControllerBase
         var status = _statusService.CreateDocumentStatus(dto);
         return CreatedAtAction(nameof(GetDocumentStatuses), ApiResponse.Created(status, "Document status created successfully"));
     }
-
+    
+    
     [HttpDelete("document/delete/{id}")]
     public ActionResult<ApiResponseWrapper<object>> DeleteDocumentStatus(int id)
     {

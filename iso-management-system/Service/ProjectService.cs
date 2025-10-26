@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using iso_management_system.Dto.FileStorage;
 using iso_management_system.Exceptions;
 using iso_management_system.Models;
 using iso_management_system.Models.JoinEntities;
 using iso_management_system.Dto.Project;
 using iso_management_system.Mappers;
 using iso_management_system.models;
+using iso_management_system.Repositories.Implementations;
 using iso_management_system.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -22,15 +24,11 @@ public class ProjectService
     private readonly IDocumentRevisionRepository _documentRevisionRepository;
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
-    public ProjectService(
-        IProjectRepository projectRepository,
-        IStandardTemplateRepository standardTemplateRepository,
-        IProjectDocumentRepository projectDocumentRepository,
-        IStandardRepository standardRepository,
-        ICustomerRepository customerRepository,
-        IDocumentRevisionRepository documentRevisionRepository,
-        IUserRepository userRepository,
-        IRoleRepository roleRepository)
+    private readonly IStandardSectionRepository _standardSectionRepository;
+    private readonly FileStorageService _fileStorageService;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public ProjectService(IProjectRepository projectRepository, IStandardTemplateRepository standardTemplateRepository, IProjectDocumentRepository projectDocumentRepository, IStandardRepository standardRepository, ICustomerRepository customerRepository, IDocumentRevisionRepository documentRevisionRepository, IUserRepository userRepository, IRoleRepository roleRepository, IStandardSectionRepository standardSectionRepository, FileStorageService fileStorageService, IUnitOfWork unitOfWork)
     {
         _projectRepository = projectRepository;
         _standardTemplateRepository = standardTemplateRepository;
@@ -40,7 +38,9 @@ public class ProjectService
         _documentRevisionRepository = documentRevisionRepository;
         _userRepository = userRepository;
         _roleRepository = roleRepository;
-        
+        _standardSectionRepository = standardSectionRepository;
+        _fileStorageService = fileStorageService;
+        _unitOfWork = unitOfWork;
     }
 
     public int CreateProject(ProjectRequestDTO dto)
@@ -143,6 +143,127 @@ public class ProjectService
 
         _projectRepository.SaveChanges();
     }
+
+    
+    public async Task<FileStorageResponseDTO> UploadFileForCustomer(int standardId, int sectionId, FileUploadCustomerRequestDTO dto)
+{
+    Console.WriteLine("=== Starting UploadFileForCustomer ===");
+
+    // Print DTO details
+    Console.WriteLine("=== DTO ===");
+    Console.WriteLine($"CustomerID: {dto.CustomerID}");
+    Console.WriteLine($"ProjectDocumentID: {dto.ProjectDocumentID}");
+    Console.WriteLine($"ChangeNote: {dto.ChangeNote ?? "(null)"}");
+    if (dto.File != null)
+    {
+        Console.WriteLine($"File Name: {dto.File.FileName}");
+        Console.WriteLine($"File Length: {dto.File.Length} bytes");
+        Console.WriteLine($"File ContentType: {dto.File.ContentType}");
+    }
+    else
+    {
+        Console.WriteLine("File is null!");
+    }
+
+    // Check repositories are not null
+    Console.WriteLine($"_fileStorageRepository is null? {_fileStorageService == null}");
+    Console.WriteLine($"_projectDocumentRepository is null? {_projectDocumentRepository == null}");
+    Console.WriteLine($"_documentRevisionRepository is null? {_documentRevisionRepository == null}");
+    Console.WriteLine($"_unitOfWork is null? {_unitOfWork == null}");
+    Console.WriteLine($"_standardSectionRepository is null? {_standardSectionRepository == null}");
+    Console.WriteLine($"_customerRepository is null? {_customerRepository == null}");
+
+    // Validate section
+    var section = _standardSectionRepository.GetSectionById(sectionId);
+    if (section == null)
+    {
+        Console.WriteLine("Section not found!");
+        throw new NotFoundException("Section not found.");
+    }
+    if (section.StandardID != standardId)
+    {
+        Console.WriteLine("Section does not belong to standard!");
+        throw new NotFoundException("Section does not belong to the standard.");
+    }
+    Console.WriteLine("Section validated");
+
+    // Validate customer
+    var customer = _customerRepository.GetCustomerById(dto.CustomerID);
+    if (customer == null)
+    {
+        Console.WriteLine("Customer not found!");
+        throw new NotFoundException("Customer not found.");
+    }
+    Console.WriteLine("Customer validated");
+
+    // Validate project document
+    var projectDocument = _projectDocumentRepository.GetById(dto.ProjectDocumentID);
+    if (projectDocument == null)
+    {
+        Console.WriteLine("Project document not found!");
+        throw new NotFoundException("Project document not found.");
+    }
+    Console.WriteLine("Project document validated");
+
+    // Begin transaction
+    await using var transaction = await _unitOfWork.BeginTransactionAsync();
+    Console.WriteLine("Transaction started");
+
+    // Upload file
+    if (dto.File == null)
+    {
+        Console.WriteLine("No file provided!");
+        throw new BadRequestException("No file provided.");
+    }
+
+    var file = _fileStorageService.UploadCustomerFile(dto); // UploadedByCustomerID set here
+    if (file == null)
+    {
+        Console.WriteLine("File entity returned null from service!");
+        throw new Exception("Failed to upload file.");
+    }
+
+    await _unitOfWork.SaveChangesAsync();
+    Console.WriteLine("1 - File uploaded and saved");
+
+    // Update ProjectDocuments
+    var currentVersion = projectDocument.VersionNumber;
+    projectDocument.FileID = file.FileID;
+    projectDocument.VersionNumber = currentVersion + 1;
+    projectDocument.LastModifiedBy = null; // customer upload
+    projectDocument.ModifiedAt = DateTime.Now;
+
+    await _unitOfWork.SaveChangesAsync();
+    Console.WriteLine("2 - ProjectDocuments updated with new file and version");
+
+    // Insert DocumentRevision
+    var revision = new DocumentRevision
+    {
+        ProjectDocumentID = projectDocument.ProjectDocumentID,
+        FileID = file.FileID,
+        VersionNumber = projectDocument.VersionNumber,
+        ModifiedByUserID = null, // customer upload
+        ChangeNote = dto.ChangeNote,
+        ModifiedAt = DateTime.Now,
+        CreatedAt = DateTime.Now
+    };
+
+    _documentRevisionRepository.Add(revision);
+    await _unitOfWork.SaveChangesAsync();
+    Console.WriteLine("3 - DocumentRevision inserted");
+
+    // Commit transaction
+    await _unitOfWork.CommitAsync();
+    Console.WriteLine("4 - Transaction committed");
+
+    // Map to DTO
+    var response = FileStorageMapper.ToResponseDTO(file);
+    Console.WriteLine("5 - Response mapped to DTO");
+
+    Console.WriteLine("=== UploadFileForCustomer Completed ===");
+    return response;
+}
+
 
     
     public void DeleteProject(int projectId)
