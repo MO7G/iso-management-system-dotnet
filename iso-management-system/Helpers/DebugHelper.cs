@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using iso_management_system.Models;
 
 namespace iso_management_system.Helpers
 {
-    public static class DebugPrinter
+    public static class DebugHelper
     {
         public static void PrintRole(Role role)
         {
@@ -60,5 +61,71 @@ namespace iso_management_system.Helpers
                 PrintRole(role);
             }
         }
+        
+        
+       public static async Task PrintRequestData(HttpRequest request)
+        {
+            Console.WriteLine("====== Debugging Request ======");
+            Console.WriteLine($"Method: {request.Method}");
+            Console.WriteLine($"Path: {request.Path}");
+            Console.WriteLine($"Content-Type: {request.ContentType}");
+            Console.WriteLine();
+
+            // Query parameters
+            if (request.Query.Any())
+            {
+                Console.WriteLine(">>> Query Parameters:");
+                foreach (var kvp in request.Query)
+                    Console.WriteLine($"   - {kvp.Key}: {kvp.Value}");
+                Console.WriteLine();
+            }
+
+            // Route values
+            if (request.RouteValues.Any())
+            {
+                Console.WriteLine(">>> Route Values:");
+                foreach (var kvp in request.RouteValues)
+                    Console.WriteLine($"   - {kvp.Key}: {kvp.Value}");
+                Console.WriteLine();
+            }
+
+            // Headers
+            if (request.Headers.Any())
+            {
+                Console.WriteLine(">>> Headers:");
+                foreach (var kvp in request.Headers)
+                    Console.WriteLine($"   - {kvp.Key}: {kvp.Value}");
+                Console.WriteLine();
+            }
+
+            // Body (formatted JSON if possible)
+            if (request.ContentLength > 0 && request.ContentType?.Contains("application/json") == true)
+            {
+                request.EnableBuffering();
+                using var reader = new StreamReader(request.Body, leaveOpen: true);
+                var body = await reader.ReadToEndAsync();
+                request.Body.Position = 0;
+
+                try
+                {
+                    var jsonElement = JsonSerializer.Deserialize<JsonElement>(body);
+                    var formattedJson = JsonSerializer.Serialize(jsonElement, new JsonSerializerOptions { WriteIndented = true });
+                    Console.WriteLine(">>> Body (JSON):");
+                    Console.WriteLine(formattedJson);
+                }
+                catch
+                {
+                    // Not valid JSON
+                    Console.WriteLine(">>> Body (Raw):");
+                    Console.WriteLine(body);
+                }
+
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("====== End of Request ======\n");
+        }
+        
+       
     }
 }

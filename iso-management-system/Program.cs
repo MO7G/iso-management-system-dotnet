@@ -13,6 +13,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add DbContext
@@ -62,6 +65,10 @@ builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogL
 // Add application service using assembly scanning
 builder.Services.AddApplicationServices();
 
+builder.Services.AddControllers(options =>
+{
+    options.AddCustomModelBinders(); // 👈 one line for all
+});
 
 // Add controllers
 builder.Services.AddControllers();

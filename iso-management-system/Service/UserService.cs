@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using iso_management_system.Dto.General;
 using iso_management_system.Dto.User;
 using iso_management_system.DTOs;
 using iso_management_system.Exceptions;
@@ -24,19 +25,33 @@ public class UserService
 
     
     
-    public IEnumerable<UserResponseDTO> GetAllUsers()
+    public PagedResponse<UserResponseDTO> GetAllUsers(int pageNumber, int pageSize)
     {
-        Console.WriteLine("Get all users");
+        var users = _userRepository.GetAllUsers(pageNumber, pageSize, out int totalRecords);
 
-        IEnumerable<User> users = _userRepository.GetAllUsers();
-        
-        // Use mapper to convert entities to DTOs
-        var userDTOs = users.Select(UserMapper.ToResponseDTO);
+        var dtoList = users.Select(UserMapper.ToResponseDTO);
 
-        return userDTOs;
+        return new PagedResponse<UserResponseDTO>(dtoList, totalRecords, pageNumber, pageSize);
     }
 
-    
+    public PagedResponse<UserResponseDTO> SearchUsers(
+        string? query,
+        int pageNumber,
+        int pageSize,
+        SortingParameters sorting) // add sorting
+    {
+        Console.WriteLine($"PageNumber: {pageNumber}");
+        Console.WriteLine($"PageSize: {pageSize}");
+        Console.WriteLine($"SortBy: {sorting.SortBy}");
+        Console.WriteLine($"SortDirection: {sorting.SortDirection}");
+
+        // Fetch users with sorting
+        var users = _userRepository.SearchUsers(query, pageNumber, pageSize, sorting, out int totalRecords);
+        var dtoList = users.Select(UserMapper.ToResponseDTO).ToList();
+
+        return new PagedResponse<UserResponseDTO>(dtoList, totalRecords, pageNumber, pageSize);
+    }
+
     
     public UserResponseDTO GetUserById(int userId)
     {
@@ -64,6 +79,25 @@ public class UserService
         return UserMapper.ToResponseDTO(user);        // Entity → DTO
     }
 
+    
+    public UserResponseDTO UpdateUser(int userId, UserUpdateDTO dto)
+    {
+        var user = _userRepository.GetUserById(userId);
+        if (user == null)
+            throw new NotFoundException($"User with ID {userId} not found.");
+
+        // Apply changes only if explicitly sent
+        if (dto.FirstNameHasValue) user.FirstName = dto.FirstName;
+        if (dto.LastNameHasValue) user.LastName = dto.LastName;
+        if (dto.EmailHasValue) user.Email = dto.Email;
+        if (dto.IsActiveHasValue && dto.IsActive.HasValue) user.IsActive = dto.IsActive.Value;
+
+        user.ModifiedAt = DateTime.Now;
+
+        _userRepository.UpdateUser(user);
+
+        return UserMapper.ToResponseDTO(user);
+    }
     
     
     public void DeleteUser(int userId)

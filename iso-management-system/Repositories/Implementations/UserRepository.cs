@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using iso_management_system.Configurations.Db;
+using iso_management_system.Dto.General;
 using iso_management_system.models;
 using iso_management_system.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,19 +15,69 @@ public class UserRepository : IUserRepository
     {
         _context = context;
     }
-
     
-    public IEnumerable<User> GetAllUsers()
+    
+    
+    public IEnumerable<User> GetAllUsers(int pageNumber, int pageSize, out int totalRecords)
     {
-        // Eager-load related roles for full data consistency
-        return _context.Users
+        var query = _context.Users
             .Include(u => u.Roles)
+            .AsNoTracking();
+
+        totalRecords = query.Count();
+
+        return query
+            .OrderBy(u => u.UserID)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+    
+    public IEnumerable<User> SearchUsers(
+        string? query,
+        int pageNumber,
+        int pageSize,
+        SortingParameters sorting, // add sorting
+        out int totalRecords)
+    {
+        var baseQuery = _context.Users
+            .Include(u => u.Roles)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            baseQuery = baseQuery.Where(u =>
+                u.FirstName.Contains(query) ||
+                u.LastName.Contains(query) ||
+                u.Email.Contains(query));
+        }
+
+        // Apply dynamic sorting
+        baseQuery = sorting.SortBy?.ToLower() switch
+        {
+            "firstname" => sorting.SortDirection.ToLower() == "desc" 
+                ? baseQuery.OrderByDescending(u => u.FirstName) 
+                : baseQuery.OrderBy(u => u.FirstName),
+            "lastname" => sorting.SortDirection.ToLower() == "desc" 
+                ? baseQuery.OrderByDescending(u => u.LastName) 
+                : baseQuery.OrderBy(u => u.LastName),
+            "email" => sorting.SortDirection.ToLower() == "desc" 
+                ? baseQuery.OrderByDescending(u => u.Email) 
+                : baseQuery.OrderBy(u => u.Email),
+            _ => sorting.SortDirection.ToLower() == "desc" 
+                ? baseQuery.OrderByDescending(u => u.UserID) 
+                : baseQuery.OrderBy(u => u.UserID),
+        };
+
+        totalRecords = baseQuery.Count();
+
+        return baseQuery
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .AsNoTracking()
             .ToList();
     }
 
-    
-    
     public User GetUserById(int userId)
     {
         return _context.Users
@@ -49,7 +100,17 @@ public class UserRepository : IUserRepository
         _context.Users.Add(user);
         _context.SaveChanges();
     }
+    public void UpdateUser(User user)
+    {
+        var tracked = _context.Users.Local.FirstOrDefault(u => u.UserID == user.UserID);
+        if (tracked == null)
+        {
+            _context.Users.Attach(user);
+        }
 
+        _context.Entry(user).State = EntityState.Modified;
+        _context.SaveChanges();
+    }
     
     
     public Models.User GetUserWithRoles(int userId)
