@@ -1,70 +1,66 @@
-using System.Threading.Tasks;
 using iso_management_system.Attributes;
 using iso_management_system.Dto.FileStorage;
 using iso_management_system.Dto.Project;
 using iso_management_system.Helpers;
-using Microsoft.AspNetCore.Mvc;
 using iso_management_system.Services;
 using iso_management_system.Shared;
+using Microsoft.AspNetCore.Mvc;
 
-namespace iso_management_system.Controllers
+namespace iso_management_system.Controllers;
+
+[ApiController]
+[ValidateModel]
+[Route("api/[controller]")]
+public class ProjectController : ControllerBase
 {
-    [ApiController]
-    [ValidateModel]
-    [Route("api/[controller]")]
-    public class ProjectController : ControllerBase
+    private readonly ProjectService _projectService;
+
+    public ProjectController(ProjectService projectService)
     {
-        private readonly ProjectService _projectService;
+        _projectService = projectService;
+    }
 
-        public ProjectController(ProjectService projectService)
-        {
-            _projectService = projectService;
-        }
 
-        
-        [HttpPost("create")]
-        public ActionResult<ApiResponseWrapper<object>> CreateProject([FromBody] ProjectRequestDTO dto)
-        {
-            var projectId = _projectService.CreateProject(dto);
-            return Ok(ApiResponse.Ok(new { ProjectID = projectId }, "Project created successfully"));
-        }
+    [HttpPost("create")]
+    public ActionResult<ApiResponseWrapper<object>> CreateProject([FromBody] ProjectRequestDTO dto)
+    {
+        var projectId = _projectService.CreateProject(dto);
+        return Ok(ApiResponse.Ok(new { ProjectID = projectId }, "Project created successfully"));
+    }
 
-        
-        [HttpDelete("delete/{projectId}")]
-        public ActionResult<ApiResponseWrapper<object>> DeleteProject(int projectId)
-        {
-            // Call the service layer to handle deletion and validations
-            _projectService.DeleteProject(projectId);
 
-            return Ok(ApiResponse.Ok<object>(null, $"Project with ID {projectId} deleted successfully"));
-        }
-        
-        
-        [HttpPost("assign-role")]
-        public ActionResult<ApiResponseWrapper<object>> AssignRole([FromBody] ProjectRoleAssignmentDTO dto)
-        {
-            _projectService.AssignRoleToProject(dto);
-            return Ok(ApiResponse.Ok<object>(null, "Role assigned successfully to user for the project"));
-        }
+    [HttpDelete("delete/{projectId}")]
+    public ActionResult<ApiResponseWrapper<object>> DeleteProject(int projectId)
+    {
+        // Call the service layer to handle deletion and validations
+        _projectService.DeleteProject(projectId);
 
-        
-        
-        // -----------------------------
-        // Upload file as a Customer
-        // -----------------------------
-        [HttpPost("standard/{standardId}/sections/{sectionId}/upload/customer")]
-        public async Task<ActionResult<ApiResponseWrapper<FileStorageResponseDTO>>> UploadFileForCustomer(
-            int standardId,
-            int sectionId,
-            [FromForm] FileUploadCustomerRequestDTO dto)
-        {
-            // Directly call the service; all validation and exceptions are handled there
-            var result = await _projectService.UploadFileForCustomer(standardId, sectionId, dto);
+        return Ok(ApiResponse.Ok<object>(null, $"Project with ID {projectId} deleted successfully"));
+    }
 
-            // Return 201 Created with the result
-            return CreatedAtAction(nameof(UploadFileForCustomer),
-                ApiResponse.Created(result, "File uploaded for customer successfully"));
-        }
-        
+
+    [HttpPost("assign-role")]
+    public ActionResult<ApiResponseWrapper<object>> AssignRole([FromBody] ProjectRoleAssignmentDTO dto)
+    {
+        _projectService.AssignRoleToProject(dto);
+        return Ok(ApiResponse.Ok<object>(null, "Role assigned successfully to user for the project"));
+    }
+
+
+    // -----------------------------
+    // Upload file as a Customer
+    // -----------------------------
+    [HttpPost("standard/{standardId}/sections/{sectionId}/upload/customer")]
+    public async Task<ActionResult<ApiResponseWrapper<FileStorageResponseDTO>>> UploadFileForCustomer(
+        int standardId,
+        int sectionId,
+        [FromForm] FileUploadCustomerRequestDTO dto)
+    {
+        // Directly call the service; all validation and exceptions are handled there
+        var result = await _projectService.UploadFileForCustomer(standardId, sectionId, dto);
+
+        // Return 201 Created with the result
+        return CreatedAtAction(nameof(UploadFileForCustomer),
+            ApiResponse.Created(result, "File uploaded for customer successfully"));
     }
 }

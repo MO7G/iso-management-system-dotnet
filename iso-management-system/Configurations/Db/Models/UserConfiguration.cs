@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using iso_management_system.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -15,78 +13,78 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         entity.HasKey(u => u.UserID);
 
         entity.Property(u => u.FirstName)
-              .HasMaxLength(100)
-              .IsRequired();
+            .HasMaxLength(100)
+            .IsRequired();
 
         entity.Property(u => u.LastName) // schema: NOT NULL
-              .HasMaxLength(100)
-              .IsRequired();
+            .HasMaxLength(100)
+            .IsRequired();
 
         entity.Property(u => u.Email)
-              .HasMaxLength(200)
-              .IsRequired();
+            .HasMaxLength(200)
+            .IsRequired();
 
         entity.HasIndex(u => u.Email).IsUnique();
 
         entity.Property(u => u.PasswordHash)
-              .HasMaxLength(500)
-              .IsRequired();
+            .HasMaxLength(500)
+            .IsRequired();
 
         entity.Property(u => u.IsActive)
-              .HasDefaultValue(true);
+            .HasDefaultValue(true);
 
         entity.Property(u => u.CreatedAt)
-              .HasDefaultValueSql("GETDATE()");
+            .HasDefaultValueSql("GETDATE()");
 
         entity.Property(u => u.ModifiedAt)
-              .HasDefaultValueSql("GETDATE()");
+            .HasDefaultValueSql("GETDATE()");
 
         // Users <-> Roles (implicit many-to-many mapped to existing join table)
         entity.HasMany(u => u.Roles)
-              .WithMany(r => r.Users)
-              .UsingEntity<Dictionary<string, object>>(
-                  "UserRoleAssignments", // existing table name
-                  // Right navigation: join -> Role
-                  j => j
-                      .HasOne<Role>()
-                      .WithMany()
-                      .HasForeignKey("RoleID")
-                      .HasConstraintName("FK_UserRoleAssignments_Roles_RoleID")
-                      .OnDelete(DeleteBehavior.Restrict),
-                  // Left navigation: join -> User
-                  j => j
-                      .HasOne<User>()
-                      .WithMany()
-                      .HasForeignKey("UserID")
-                      .HasConstraintName("FK_UserRoleAssignments_Users_UserID")
-                      .OnDelete(DeleteBehavior.Restrict),
-                  // Configure the join table shape
-                  j =>
-                  {
-                      j.ToTable("UserRoleAssignments");
-                      j.HasKey("UserID", "RoleID");
-                      // map timestamp columns if you still have them in DB (optional)
-                      j.Property<DateTime>("CreatedAt").HasDefaultValueSql("GETDATE()");
-                      j.Property<DateTime>("ModifiedAt").HasDefaultValueSql("GETDATE()");
-                  });
-        
-        
+            .WithMany(r => r.Users)
+            .UsingEntity<Dictionary<string, object>>(
+                "UserRoleAssignments", // existing table name
+                // Right navigation: join -> Role
+                j => j
+                    .HasOne<Role>()
+                    .WithMany()
+                    .HasForeignKey("RoleID")
+                    .HasConstraintName("FK_UserRoleAssignments_Roles_RoleID")
+                    .OnDelete(DeleteBehavior.Restrict),
+                // Left navigation: join -> User
+                j => j
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey("UserID")
+                    .HasConstraintName("FK_UserRoleAssignments_Users_UserID")
+                    .OnDelete(DeleteBehavior.Restrict),
+                // Configure the join table shape
+                j =>
+                {
+                    j.ToTable("UserRoleAssignments");
+                    j.HasKey("UserID", "RoleID");
+                    // map timestamp columns if you still have them in DB (optional)
+                    j.Property<DateTime>("CreatedAt").HasDefaultValueSql("GETDATE()");
+                    j.Property<DateTime>("ModifiedAt").HasDefaultValueSql("GETDATE()");
+                });
+
+
         // 🔹 One-to-Many: User → ProjectAssignments
         entity.HasMany(u => u.ProjectAssignments)
-              .WithOne(pa => pa.User)
-              .HasForeignKey(pa => pa.UserId)
-              .OnDelete(DeleteBehavior.Cascade);
+            .WithOne(pa => pa.User)
+            .HasForeignKey(pa => pa.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // 🔹 One-to-Many: User → DocumentRevisions
         entity.HasMany(u => u.DocumentRevisions)
-              .WithOne(dr => dr.ModifiedByUser)
-              .HasForeignKey(dr => dr.ModifiedByUserID)
-              .OnDelete(DeleteBehavior.SetNull);
+            .WithOne(dr => dr.ModifiedByUser)
+            .HasForeignKey(dr => dr.ModifiedByUserID)
+            .OnDelete(DeleteBehavior.SetNull);
 
         // 🔹 One-to-Many: User → FileStorage (UploadedFiles)
         entity.HasMany(u => u.UploadedFiles)
-              .WithOne(f => f.UploadedByUser)
-              .HasForeignKey(f => f.UploadedByUserID)
-              .OnDelete(DeleteBehavior.SetNull);
+            .WithOne(f => f.UploadedByUser)
+            .HasForeignKey(f => f.UploadedByUserID)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

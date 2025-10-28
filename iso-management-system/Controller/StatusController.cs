@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using iso_management_system.Attributes;
 using iso_management_system.Dto.Status;
-using iso_management_system.DTOs;
 using iso_management_system.Helpers;
 using iso_management_system.Services;
 using iso_management_system.Shared;
@@ -36,7 +34,8 @@ public class StatusController : ControllerBase
     public ActionResult<ApiResponseWrapper<StatusResponseDTO>> CreateProjectStatus([FromBody] StatusRequestDTO dto)
     {
         var status = _statusService.CreateProjectStatus(dto);
-        return CreatedAtAction(nameof(GetProjectStatuses), ApiResponse.Created(status, "Project status created successfully"));
+        return CreatedAtAction(nameof(GetProjectStatuses),
+            ApiResponse.Created(status, "Project status created successfully"));
     }
 
     [HttpDelete("project/delete/{id}")]
@@ -61,10 +60,11 @@ public class StatusController : ControllerBase
     public ActionResult<ApiResponseWrapper<StatusResponseDTO>> CreateDocumentStatus([FromBody] StatusRequestDTO dto)
     {
         var status = _statusService.CreateDocumentStatus(dto);
-        return CreatedAtAction(nameof(GetDocumentStatuses), ApiResponse.Created(status, "Document status created successfully"));
+        return CreatedAtAction(nameof(GetDocumentStatuses),
+            ApiResponse.Created(status, "Document status created successfully"));
     }
-    
-    
+
+
     [HttpDelete("document/delete/{id}")]
     public ActionResult<ApiResponseWrapper<object>> DeleteDocumentStatus(int id)
     {

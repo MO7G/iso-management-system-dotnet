@@ -1,8 +1,5 @@
-using System;
-using iso_management_system.DTOs;
-using iso_management_system.Models;
-using System.Linq;
 using iso_management_system.Dto.Customer;
+using iso_management_system.Models;
 
 namespace iso_management_system.Mappers;
 
@@ -16,11 +13,11 @@ public static class CustomerMapper
             Name = customer.Name,
             Email = customer.Email,
             CreatedAt = customer.CreatedAt,
-            ModifiedAt = customer.ModifiedAt,
+            ModifiedAt = customer.ModifiedAt
         };
     }
 
-    
+
     public static Customer ToEntity(CustomerRequestDTO dto)
     {
         return new Customer

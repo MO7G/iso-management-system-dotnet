@@ -1,10 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using iso_management_system.Dto.Permission;
-using iso_management_system.DTOs;
 using iso_management_system.Exceptions;
 using iso_management_system.Mappers;
-using iso_management_system.Models;
 using iso_management_system.Repositories.Interfaces;
 
 namespace iso_management_system.Services;

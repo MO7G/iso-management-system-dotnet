@@ -1,26 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Threading.Tasks;
 using iso_management_system.Constants;
 using iso_management_system.Exceptions;
 using iso_management_system.Shared;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 
 namespace iso_management_system.Middleware;
 
-
 public class GlobalExceptionMiddleware
 {
-    private readonly RequestDelegate _next;
     private readonly ILogger<GlobalExceptionMiddleware> _logger;
+    private readonly RequestDelegate _next;
     private readonly bool _showFullExceptionDetails; // <-- add this flag
 
-    public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger, IConfiguration config)
+    public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger,
+        IConfiguration config)
     {
         _next = next;
         _logger = logger;
@@ -36,21 +27,16 @@ public class GlobalExceptionMiddleware
         catch (Exception ex)
         {
             if (_showFullExceptionDetails)
-            {
                 // Development mode — log message and stack trace explicitly
-                _logger.LogError("Unhandled exception: {Message} | {StackTrace}", 
-                    ex.GetBaseException().Message, 
+                _logger.LogError("Unhandled exception: {Message} | {StackTrace}",
+                    ex.GetBaseException().Message,
                     ex.GetBaseException().StackTrace);
-            }
             else
-            {
                 // Production mode — only log short message
                 _logger.LogError("Unhandled exception: {Message}", ex.GetBaseException().Message);
-            }
 
             await HandleExceptionAsync(context, ex);
         }
-
     }
 
     private static Task HandleExceptionAsync(HttpContext context, Exception ex)
@@ -78,9 +64,9 @@ public class GlobalExceptionMiddleware
                     validationEx.Errors
                 );
                 break;
-            
-            case BusinessRuleException businessRuleException:   // <-- handle it here
-                statusCode = businessRuleException.StatusCode;    // 400
+
+            case BusinessRuleException businessRuleException: // <-- handle it here
+                statusCode = businessRuleException.StatusCode; // 400
                 responseBody = new ApiResponseWrapper<object>(statusCode, businessRuleException.Message);
                 break;
 
@@ -91,8 +77,7 @@ public class GlobalExceptionMiddleware
         }
 
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)statusCode;  // convert from enum to int !!!
+        context.Response.StatusCode = (int)statusCode; // convert from enum to int !!!
         return context.Response.WriteAsJsonAsync(responseBody);
     }
 }
-
