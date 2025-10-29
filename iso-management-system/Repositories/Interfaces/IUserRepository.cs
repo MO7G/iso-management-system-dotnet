@@ -11,9 +11,14 @@ public interface IUserRepository
     User GetUserById(int userId);
     bool EmailExists(string email);
     void AddUser(User user);
-    User GetUserWithRoles(int userId);
-    void UpdateUser(User user);
-    IEnumerable<User> SearchUsers(string? query, int pageNumber, int pageSize, SortingParameters sorting , out int totalRecords);
 
-    void DeleteUser(User user);
+    Task<bool> UserExistsAsync(int userId);
+    Task<bool> HasRolesAsync(int userId);
+    Task<bool> HasProjectAssignmentsAsync(int userId);
+    Task DeleteUserByIdAsync(int userId);
+
+
+    Task UpdateUserAsync(User user, CancellationToken cancellationToken = default);
+    IEnumerable<User> SearchUsers(string? query, int pageNumber, int pageSize, SortingParameters sorting , out int totalRecords);
+    
 }

@@ -100,7 +100,7 @@ public class UserRepository : IUserRepository
         _context.Users.Add(user);
         _context.SaveChanges();
     }
-    public void UpdateUser(User user)
+    public async Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
     {
         var tracked = _context.Users.Local.FirstOrDefault(u => u.UserID == user.UserID);
         if (tracked == null)
@@ -109,23 +109,45 @@ public class UserRepository : IUserRepository
         }
 
         _context.Entry(user).State = EntityState.Modified;
-        _context.SaveChanges();
-    }
-    
-    
-    public Models.User GetUserWithRoles(int userId)
-    {
-        return _context.Users
-            .Include(u => u.Roles)
-            .Include(u => u.ProjectAssignments)
-            .FirstOrDefault(u => u.UserID == userId);
+
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     
     
-    public void DeleteUser(User user)
+   
+    
+    
+    public async Task<bool> UserExistsAsync(int userId)
     {
-        _context.Users.Remove(user);
-        _context.SaveChanges();
+        return await _context.Users.AsNoTracking()
+            .AnyAsync(u => u.UserID == userId);
     }
+
+    public async Task<bool> HasRolesAsync(int userId)
+    {
+        return await _context.Users.AsNoTracking()
+            .Where(u => u.UserID == userId)
+            .SelectMany(u => u.Roles)
+            .AnyAsync();
+    }
+
+    public async Task<bool> HasProjectAssignmentsAsync(int userId)
+    {
+        return await _context.Users.AsNoTracking()
+            .Where(u => u.UserID == userId)
+            .SelectMany(u => u.ProjectAssignments)
+            .AnyAsync();
+    }
+
+    public async Task DeleteUserByIdAsync(int userId)
+    {
+        var user = new User { UserID = userId };
+        _context.Users.Attach(user);
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+    }
+
+
+
 }

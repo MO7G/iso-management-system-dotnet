@@ -50,5 +50,3 @@ namespace iso_management_system.Shared
         }
     }
 }
-
-

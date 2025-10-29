@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using iso_management_system.Dto.General;
 using iso_management_system.Dto.User;
-using iso_management_system.DTOs;
 using iso_management_system.Exceptions;
 using iso_management_system.Helpers;
 using iso_management_system.Mappers;
 using iso_management_system.models;
-using iso_management_system.Models;
-using iso_management_system.Repositories.Interfaces;
 
-namespace iso_management_system.Services;
+namespace iso_management_system.Service;
 
 public class UserService
 {
@@ -80,51 +74,61 @@ public class UserService
     }
 
     
-    public UserResponseDTO UpdateUser(int userId, UserUpdateDTO dto)
+    public async Task<UserResponseDTO> UpdateUserAsync(int userId, UserUpdateDTO dto)
     {
+        // Retrieve the existing user
         var user = _userRepository.GetUserById(userId);
         if (user == null)
             throw new NotFoundException($"User with ID {userId} not found.");
 
-        // Apply changes only if explicitly sent
-        if (dto.FirstNameHasValue) user.FirstName = dto.FirstName;
-        if (dto.LastNameHasValue) user.LastName = dto.LastName;
-        if (dto.EmailHasValue) user.Email = dto.Email;
-        if (dto.IsActiveHasValue && dto.IsActive.HasValue) user.IsActive = dto.IsActive.Value;
+        // Apply changes only if explicitly provided and non-null
+        if (dto is { FirstNameHasValue: true, FirstName: not null })
+            user.FirstName = dto.FirstName;
 
-        user.ModifiedAt = DateTime.Now;
+        if (dto is { LastNameHasValue: true, LastName: not null })
+            user.LastName = dto.LastName;
 
-        _userRepository.UpdateUser(user);
+        if (dto is { EmailHasValue: true, Email: not null })
+            user.Email = dto.Email;
 
+        if (dto is { IsActiveHasValue: true, IsActive: not null })
+            user.IsActive = dto.IsActive.Value;
+
+        // Update modification timestamp
+        user.ModifiedAt = DateTime.UtcNow;
+
+        // Save changes asynchronously
+        await _userRepository.UpdateUserAsync(user);
+
+        // Map and return the updated DTO
         return UserMapper.ToResponseDTO(user);
     }
+
+
     
     
-    public void DeleteUser(int userId)
+    /// <summary>
+    /// Deletes a user by ID after verifying that they are not assigned
+    /// to any active roles or project assignments.
+    /// </summary>
+    /// <param name="userId">The ID of the user to delete.</param>
+    /// <exception cref="NotFoundException">Thrown if the user does not exist.</exception>
+    /// <exception cref="BusinessRuleException">
+    /// Thrown if the user has assigned roles or active project assignments.
+    /// </exception>
+    public async Task DeleteUserAsync(int userId)
     {
-        var user = _userRepository.GetUserWithRoles(userId);
-        if (user == null)
+        if (!await _userRepository.UserExistsAsync(userId))
             throw new NotFoundException($"User with ID {userId} not found.");
 
-        // Business rule: cannot delete admin or active users (example)
-        if (user.Roles.Any())
-        {
+        if (await _userRepository.HasRolesAsync(userId))
             throw new BusinessRuleException("Cannot delete user assigned to roles.");
-        }
 
-        if (user.ProjectAssignments.Any())
-        {
-            throw new BusinessRuleException("Cann't a user assigned to active project");
-        }
-        
+        if (await _userRepository.HasProjectAssignmentsAsync(userId))
+            throw new BusinessRuleException("Cannot delete a user assigned to active project.");
 
-        _userRepository.DeleteUser(user);
+        await _userRepository.DeleteUserByIdAsync(userId);
     }
-    
-    
-    
-    
-    
-    
+
 }
  
