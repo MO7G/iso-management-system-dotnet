@@ -49,7 +49,7 @@ public class UserService
     
     public UserResponseDTO GetUserById(int userId)
     {
-        var user = _userRepository.GetUserById(userId);
+        var user = _userRepository.GetUserByIdNotTracked(userId);
 
         if (user == null)
             throw new NotFoundException($"User with ID {userId} not found.");
@@ -59,25 +59,51 @@ public class UserService
 
     
     
-    public UserResponseDTO CreateUser(UserRequestDTO userRequest)
+    public async Task<UserResponseDTO> CreateUserAsync(UserRequestDTO userRequest)
     {
-        // Example business rule: prevent duplicate emails
-        bool emailExists = _userRepository.EmailExists(userRequest.Email);
-        if (emailExists)
-        {
+        if (await _userRepository.EmailExistsAsync(userRequest.Email))
             throw new BusinessRuleException("A user with this email already exists.");
-        }
 
-        var user = UserMapper.ToEntity(userRequest);  // DTO → Entity
-        _userRepository.AddUser(user);                // Save to DB
-        return UserMapper.ToResponseDTO(user);        // Entity → DTO
+        var user = UserMapper.ToEntity(userRequest);
+        await _userRepository.AddUserAsync(user);
+
+        return UserMapper.ToResponseDTO(user);
     }
 
-    
+
+
+    /// <summary>
+    /// Updates an existing user's profile with the provided fields.
+    /// </summary>
+    /// <remarks>
+    /// This method performs a **partial update**, applying only the properties explicitly sent
+    /// in the <see cref="UserUpdateDTO"/>. Each property in the DTO includes a corresponding
+    /// `HasValue` flag that indicates whether the client intended to modify that field.
+    ///
+    /// Validation and null-safety are enforced at the DTO level to ensure
+    /// only meaningful, non-null values are applied. The method updates the `ModifiedAt`
+    /// timestamp and persists the changes asynchronously.
+    ///
+    /// Exceptions:
+    /// <list type="bullet">
+    /// <item>
+    /// <description><see cref="NotFoundException"/> — Thrown if the user does not exist.</description>
+    /// </item>
+    /// </list>
+    ///
+    /// Design notes:
+    /// - Promotes **idempotency** and **explicit intent** by updating only specified fields.
+    /// - Uses pattern matching for clean and expressive null/value checks.
+    /// - Delegates persistence to the repository to preserve separation of concerns.
+    ///
+    /// </remarks>
+    /// <param name="userId">The unique identifier of the user to update.</param>
+    /// <param name="dto">The DTO containing the fields to update and their HasValue flags.</param>
+    /// <returns>A <see cref="UserResponseDTO"/> representing the updated user state.</returns>
     public async Task<UserResponseDTO> UpdateUserAsync(int userId, UserUpdateDTO dto)
     {
         // Retrieve the existing user
-        var user = _userRepository.GetUserById(userId);
+        var user = _userRepository.GetUserByIdNotTracked(userId);
         if (user == null)
             throw new NotFoundException($"User with ID {userId} not found.");
 

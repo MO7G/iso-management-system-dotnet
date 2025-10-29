@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using iso_management_system.Configurations.Db;
 using iso_management_system.Dto.General;
 using iso_management_system.models;
@@ -53,21 +51,29 @@ public class UserRepository : IUserRepository
         }
 
         // Apply dynamic sorting
-        baseQuery = sorting.SortBy?.ToLower() switch
+        switch (sorting.SortBy?.ToLower())
         {
-            "firstname" => sorting.SortDirection.ToLower() == "desc" 
-                ? baseQuery.OrderByDescending(u => u.FirstName) 
-                : baseQuery.OrderBy(u => u.FirstName),
-            "lastname" => sorting.SortDirection.ToLower() == "desc" 
-                ? baseQuery.OrderByDescending(u => u.LastName) 
-                : baseQuery.OrderBy(u => u.LastName),
-            "email" => sorting.SortDirection.ToLower() == "desc" 
-                ? baseQuery.OrderByDescending(u => u.Email) 
-                : baseQuery.OrderBy(u => u.Email),
-            _ => sorting.SortDirection.ToLower() == "desc" 
-                ? baseQuery.OrderByDescending(u => u.UserID) 
-                : baseQuery.OrderBy(u => u.UserID),
-        };
+            case "firstname":
+                baseQuery = sorting.SortDirection.Equals("desc", StringComparison.CurrentCultureIgnoreCase)
+                    ? baseQuery.OrderByDescending(u => u.FirstName)
+                    : baseQuery.OrderBy(u => u.FirstName);
+                break;
+            case "lastname":
+                baseQuery = sorting.SortDirection.Equals("desc", StringComparison.CurrentCultureIgnoreCase)
+                    ? baseQuery.OrderByDescending(u => u.LastName)
+                    : baseQuery.OrderBy(u => u.LastName);
+                break;
+            case "email":
+                baseQuery = sorting.SortDirection.Equals("desc", StringComparison.CurrentCultureIgnoreCase)
+                    ? baseQuery.OrderByDescending(u => u.Email)
+                    : baseQuery.OrderBy(u => u.Email);
+                break;
+            default:
+                baseQuery = sorting.SortDirection.Equals("desc", StringComparison.CurrentCultureIgnoreCase)
+                    ? baseQuery.OrderByDescending(u => u.UserID)
+                    : baseQuery.OrderBy(u => u.UserID);
+                break;
+        }
 
         totalRecords = baseQuery.Count();
 
@@ -78,7 +84,7 @@ public class UserRepository : IUserRepository
             .ToList();
     }
 
-    public User GetUserById(int userId)
+    public User? GetUserByIdNotTracked(int userId)
     {
         return _context.Users
             .Include(u => u.Roles)
@@ -88,18 +94,18 @@ public class UserRepository : IUserRepository
 
     
     
-    public bool EmailExists(string email)
+    public async Task AddUserAsync(User user)
     {
-        return _context.Users.Any(u => u.Email.ToLower() == email.ToLower());
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
     }
 
-    
-    
-    public void AddUser(User user)
+    public async Task<bool> EmailExistsAsync(string email)
     {
-        _context.Users.Add(user);
-        _context.SaveChanges();
+        return await _context.Users
+            .AnyAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
     }
+
     public async Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
     {
         var tracked = _context.Users.Local.FirstOrDefault(u => u.UserID == user.UserID);

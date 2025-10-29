@@ -8,9 +8,9 @@ namespace iso_management_system.models;
 public interface IUserRepository
 {
     IEnumerable<User> GetAllUsers(int pageNumber, int pageSize, out int totalRecords);
-    User GetUserById(int userId);
-    bool EmailExists(string email);
-    void AddUser(User user);
+    User GetUserByIdNotTracked(int userId);
+    Task<bool> EmailExistsAsync(string email);
+    Task AddUserAsync(User user);
 
     Task<bool> UserExistsAsync(int userId);
     Task<bool> HasRolesAsync(int userId);

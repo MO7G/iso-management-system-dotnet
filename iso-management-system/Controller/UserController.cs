@@ -87,16 +87,17 @@ public class UserController : ControllerBase
     /// <param name="userRequest">User data required to create a new record.</param>
     /// <returns>Created user data along with location header.</returns>
     [HttpPost("create")]
-    public ActionResult<ApiResponseWrapper<UserResponseDTO>> CreateUser([FromBody] UserRequestDTO userRequest)
+    public async Task<ActionResult<ApiResponseWrapper<UserResponseDTO>>> CreateUser([FromBody] UserRequestDTO userRequest)
     {
-        var createdUser = _userService.CreateUser(userRequest);
-        
+        var createdUser = await _userService.CreateUserAsync(userRequest);
+
         return CreatedAtAction(
             nameof(GetUserById),
             new { userId = createdUser.Id },
             ApiResponse.Created(createdUser, "User created successfully")
         );
     }
+
 
     
     

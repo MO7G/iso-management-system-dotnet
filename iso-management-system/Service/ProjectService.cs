@@ -94,7 +94,7 @@ public class ProjectService
             throw new NotFoundException($"Project with ID {dto.ProjectId} not found.");
 
         // 2️⃣ Validate user exists
-        var user = _userRepository.GetUserById(dto.UserId!.Value);
+        var user = _userRepository.GetUserByIdNotTracked(dto.UserId!.Value);
         if (user == null)
             throw new NotFoundException($"User with ID {dto.UserId} not found.");
         

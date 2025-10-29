@@ -132,7 +132,7 @@ namespace iso_management_system.Services
     
     Console.WriteLine("Section validated");
 
-    var user = _userRepository.GetUserById(dto.UserID.Value);
+    var user = _userRepository.GetUserByIdNotTracked(dto.UserID.Value);
     if (user == null)
         throw new NotFoundException("User not found");
 
