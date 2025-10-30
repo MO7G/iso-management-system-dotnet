@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using iso_management_system.Attributes;
 using iso_management_system.Dto.FileStorage;
+using iso_management_system.Dto.General;
 using iso_management_system.Dto.Stander;
 using iso_management_system.DTOs;
 using iso_management_system.Helpers;
+using iso_management_system.ModelBinders;
 using iso_management_system.Services;
 using iso_management_system.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -28,12 +30,16 @@ namespace iso_management_system.Controllers
 
         
         // get all standards
-        [HttpGet]
-        public ActionResult<ApiResponseWrapper<IEnumerable<StandardResponseDTO>>> GetStandards()
+        [HttpGet("standards")]
+        public ActionResult<ApiResponseWrapper<PagedResponse<StandardResponseDTO>>> GetStandards(
+            [ModelBinder(BinderType = typeof(PaginationModelBinder))] PaginationParameters pagination
+            
+        )
         {
-            var standards = _standardService.GetAllStandards();
-            return Ok(ApiResponse.Ok(standards, "Standards fetched successfully"));
+            var standardsPaged = _standardService.GetAllStandards(pagination.PageNumber, pagination.PageSize);
+            return Ok(ApiResponse.Ok(standardsPaged, "Standards fetched successfully"));
         }
+
 
         
         
@@ -58,6 +64,21 @@ namespace iso_management_system.Controllers
         }
 
         
+        [HttpGet("search")]
+        public ActionResult<ApiResponseWrapper<PagedResponse<StandardResponseDTO>>> SearchStandards(
+            string? query,
+            [ModelBinder(BinderType = typeof(PaginationModelBinder))] PaginationParameters pagination,
+            [FromQuery] SortingParameters sorting)
+        {
+            var result = _standardService.SearchStandards(
+                query,
+                pagination.PageNumber,
+                pagination.PageSize,
+                sorting);
+
+            return Ok(ApiResponse.Ok(result, "Standards fetched successfully"));
+        }
+
         
         // delete a standard
         [HttpDelete("delete/{id}")]
@@ -79,12 +100,32 @@ namespace iso_management_system.Controllers
         
         
         // get a section in a standard
-        [HttpGet("section/{standardId}")]
+        [HttpGet("fullsections/{standardId}")]
         public ActionResult<ApiResponseWrapper<IEnumerable<StandardSectionResponseDTO>>> GetSectionsByStandard(int standardId)
         {
             var sections = _standardService.GetSectionsByStandard(standardId);
             return Ok(ApiResponse.Ok(sections, "Sections fetched successfully"));
         }
+        
+        
+        // DELETE: api/standard/sections/{sectionId}
+        [HttpDelete("{standardId}/sections/{sectionId}")]
+        public async Task<ActionResult<ApiResponseWrapper<object>>> DeleteSection(int standardId, int sectionId)
+        {
+            await _standardService.DeleteSectionAsync(sectionId);
+            return Ok(ApiResponse.Ok<object>(null, "Section deleted successfully"));
+        }
+
+        
+        // get a single section by ID
+        [HttpGet("section/{sectionId}")]
+        public ActionResult<ApiResponseWrapper<StandardSectionResponseDTO>> GetSectionById(int sectionId)
+        {
+            var section = _standardService.GetSectionById(sectionId);
+            return Ok(ApiResponse.Ok(section, "Section fetched successfully"));
+        }
+
+        
         
         
         // -----------------------------

@@ -103,8 +103,9 @@ public class UserRepository : IUserRepository
     public async Task<bool> EmailExistsAsync(string email)
     {
         return await _context.Users
-            .AnyAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
+            .AnyAsync(u => u.Email.ToLower() == email.ToLower());
     }
+
 
     public async Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
     {

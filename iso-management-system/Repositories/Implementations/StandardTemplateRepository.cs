@@ -38,7 +38,19 @@ public class StandardTemplateRepository : IStandardTemplateRepository
             .ToList();
     }
 
-
+    
+    // ✅ Implementation of the interface method
+    public IEnumerable<StandardTemplate> GetTemplatesBySectionId(int sectionId)
+    {
+        return _context.StandardTemplates
+            .Where(t => t.SectionID == sectionId)
+            .ToList();
+    }
+   
+    public void DeleteTemplate(StandardTemplate template)
+    {
+        _context.StandardTemplates.Remove(template);
+    }
     public void SaveChanges()
     {
         _context.SaveChanges();

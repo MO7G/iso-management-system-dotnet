@@ -62,5 +62,33 @@ namespace iso_management_system.Services
             return fileEntity;
             //return FileStorageMapper.ToResponseDTO(fileEntity);
         }
+        
+        
+        
+        public FileStorageResponseDTO DeleteFile(int fileId)
+        {
+            // 1️⃣ Retrieve the file from the database
+            var file = _fileStorageRepository.GetById(fileId);
+            if (file == null)
+                throw new NotFoundException($"File with ID {fileId} not found.");
+
+            // 2️⃣ (Optional) Delete the actual file from disk or storage service
+            // If you’re storing files on disk or cloud, handle physical deletion here.
+            // Example for local files:
+            // if (File.Exists(file.FilePath))
+            // {
+            //     File.Delete(file.FilePath);
+            // }
+
+            // 3️⃣ Remove the file entity from the database
+            _fileStorageRepository.Delete(file);
+
+            // 4️⃣ Save changes to persist deletion
+           // _fileStorageRepository.SaveChanges();
+
+            // 5️⃣ Return DTO (optional, useful if you want to confirm deletion info)
+            return FileStorageMapper.ToResponseDTO(file);
+        }
+
     }
 }

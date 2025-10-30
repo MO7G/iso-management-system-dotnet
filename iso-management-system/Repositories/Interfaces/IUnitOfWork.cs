@@ -11,7 +11,11 @@ public interface IUnitOfWork : IDisposable
     Task<IDbContextTransaction> BeginTransactionAsync();
     Task CommitAsync();
     Task RollbackAsync();
+// ⭐️ Reusable Transaction Template Method ⭐️
+    Task ExecuteInTransactionAsync(Func<Task> work);
 
+// (optional overload if you want to return a result)
+    Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> work);
     // 🔹 Save all changes (if not using transaction)
     Task<int> SaveChangesAsync();
 

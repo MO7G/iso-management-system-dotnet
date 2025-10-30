@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using iso_management_system.Dto.Customer;
+using iso_management_system.Dto.General;
 using iso_management_system.DTOs;
 using iso_management_system.Exceptions;
+using iso_management_system.Helpers;
 using iso_management_system.Mappers;
 using iso_management_system.Models;
 using iso_management_system.Repositories.Interfaces;
@@ -21,10 +23,20 @@ public class CustomerService
         _customerRepository = customerRepository;
     }
 
-    public IEnumerable<CustomerResponseDTO> GetAllCustomers()
+    // ✅ Paginated fetch
+    public PagedResponse<CustomerResponseDTO> GetAllCustomers(int pageNumber, int pageSize)
     {
-        var customers = _customerRepository.GetAllCustomers();
-        return customers.Select(CustomerMapper.ToResponseDTO);
+        var customers = _customerRepository.GetAllCustomers(pageNumber, pageSize, out int totalRecords);
+        var dtoList = customers.Select(CustomerMapper.ToResponseDTO);
+        return new PagedResponse<CustomerResponseDTO>(dtoList, totalRecords, pageNumber, pageSize);
+    }
+
+    // ✅ Search with pagination + sorting
+    public PagedResponse<CustomerResponseDTO> SearchCustomers(string? query, int pageNumber, int pageSize, SortingParameters sorting)
+    {
+        var customers = _customerRepository.SearchCustomers(query, pageNumber, pageSize, sorting, out int totalRecords);
+        var dtoList = customers.Select(CustomerMapper.ToResponseDTO);
+        return new PagedResponse<CustomerResponseDTO>(dtoList, totalRecords, pageNumber, pageSize);
     }
 
     public CustomerResponseDTO GetCustomerById(int customerId)

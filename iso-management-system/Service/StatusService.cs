@@ -18,9 +18,7 @@ public class StatusService
         _statusRepository = statusRepository;
     }
 
-    // ========================
-    // 🔹 PROJECT STATUS
-    // ========================
+  
     public IEnumerable<StatusResponseDTO> GetAllProjectStatuses()
     {
         var statuses = _statusRepository.GetAllProjectStatuses();
@@ -46,9 +44,8 @@ public class StatusService
         _statusRepository.DeleteProjectStatus(status);
     }
 
-    // ========================
-    // 🔹 DOCUMENT STATUS
-    // ========================
+   
+    
     public IEnumerable<StatusResponseDTO> GetAllDocumentStatuses()
     {
         var statuses = _statusRepository.GetAllDocumentStatuses();

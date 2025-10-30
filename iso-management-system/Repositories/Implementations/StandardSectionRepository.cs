@@ -4,6 +4,7 @@ using System.Linq;
 using iso_management_system.Configurations.Db;
 using iso_management_system.Models;
 using iso_management_system.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace iso_management_system.Repositories.Implementations
 {
@@ -21,6 +22,13 @@ namespace iso_management_system.Repositories.Implementations
             return _context.StandardSections
                 .Where(s => s.StandardID == standardId)
                 .ToList();
+        }
+
+
+        public bool HasChildSections(int sectionId)
+        {
+            return _context.StandardSections
+                .Any(s => s.ParentSectionID == sectionId);
         }
 
         public StandardSection? GetSectionById(int id)

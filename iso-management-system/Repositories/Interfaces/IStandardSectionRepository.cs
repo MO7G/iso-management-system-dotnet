@@ -10,6 +10,7 @@ namespace iso_management_system.Repositories.Interfaces
         StandardSection? GetSectionById(int id);
         void AddSection(StandardSection section);
         void DeleteSection(StandardSection section);
+        bool HasChildSections(int sectionId);
         void SaveChanges();
     }
 }
