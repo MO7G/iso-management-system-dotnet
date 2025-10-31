@@ -14,6 +14,7 @@
 
             // Delete related document revisions
             void DeleteDocumentRevisions(int projectDocumentId);
+            bool IsFileUsedInAnyProject(int fileId , int templateId);
 
             
             void DeleteProjectDocumentsByProject(int projectId);

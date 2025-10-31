@@ -46,6 +46,12 @@ public class ProjectController : ControllerBase
         return Ok(ApiResponse.Ok<object>(null, "Role assigned successfully to user for the project"));
     }
 
+    [HttpDelete("unassign-role")]
+    public ActionResult<ApiResponseWrapper<object>> UnassignRole([FromBody] ProjectRoleAssignmentDTO dto)
+    {
+        _projectService.UnassignRoleFromProject(dto);
+        return Ok(ApiResponse.Ok<object>(null, "Role unassigned successfully from user in project"));
+    }
 
     // -----------------------------
     // Upload file as a Customer

@@ -20,23 +20,24 @@ namespace iso_management_system.Services
         private readonly IStandardRepository _standardRepository;
         private readonly IStandardSectionRepository _standardSectionRepository;
         private readonly IStandardTemplateRepository _standardTemplateRepository;
+        private readonly IProjectDocumentRepository _projectDocumentRepository;
         private readonly FileStorageService _fileStorageService;
         private readonly IUserRepository _userRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<StandardService> _logger;
 
-        public StandardService(IStandardRepository standardRepository,
-            IStandardSectionRepository standardSectionRepository,
-            IStandardTemplateRepository standardTemplateRepository, FileStorageService fileStorageService,
-            IUserRepository userRepository, ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
+        public StandardService(IStandardRepository standardRepository, IStandardSectionRepository standardSectionRepository, IStandardTemplateRepository standardTemplateRepository, IProjectDocumentRepository projectDocumentRepository, FileStorageService fileStorageService, IUserRepository userRepository, ICustomerRepository customerRepository, IUnitOfWork unitOfWork, ILogger<StandardService> logger)
         {
             _standardRepository = standardRepository;
             _standardSectionRepository = standardSectionRepository;
             _standardTemplateRepository = standardTemplateRepository;
+            _projectDocumentRepository = projectDocumentRepository;
             _fileStorageService = fileStorageService;
             _userRepository = userRepository;
             _customerRepository = customerRepository;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public PagedResponse<StandardResponseDTO> GetAllStandards(int pageNumber, int pageSize)
@@ -310,7 +311,59 @@ namespace iso_management_system.Services
                 throw;
             }
         }
+        
+        
+        
+        
+        public async Task DeleteFileFromSectionAsync(int fileId, int sectionId)
+        {
+            // === 1️⃣ VALIDATION PHASE (outside the transaction) ===
+            var section = _standardSectionRepository.GetSectionById(sectionId);
+            if (section == null)
+                throw new NotFoundException($"Section with ID {sectionId} not found.");
+
+
+            var file = _fileStorageService.getFileById(fileId);
+            if(file == null)
+                throw new NotFoundException($"File with ID {fileId} not found.");
+            
+            
+            var template = _standardTemplateRepository
+                .GetTemplatesBySectionId(section.SectionID)
+                .FirstOrDefault(t => t.FileID == fileId);
+
+            if (template == null)
+                throw new BusinessRuleException("This file doesn't contain template ID !!!");
+
+            // ✅ Check if the file is used in any project
+            if (_projectDocumentRepository.IsFileUsedInAnyProject(fileId, template.TemplateID))
+                throw new BusinessRuleException(
+                    $"FileID {fileId} cannot be deleted because it's used in projects.");
+
+            // === 2️⃣ TRANSACTIONAL DELETION ===
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                // Delete the physical file
+                _fileStorageService.DeleteFile(fileId);
+
+                // Mark the template for deletion (not yet saved)
+                _standardTemplateRepository.DeleteTemplate(template);
+
+                
+                _logger.LogInformation("Deleted file id {fileId}" , fileId);
+
+                // Optionally, could delete the section itself if empty — but here we only delete the file/template
+            });
+        }
+
+
+
     }
+    
+    
+    
+    
+    
 }
 
 

@@ -62,6 +62,12 @@ namespace iso_management_system.Repositories.Implementations
                 _context.ProjectDocuments.RemoveRange(documents);
             }
         }
+        
+        public bool IsFileUsedInAnyProject(int fileId , int templateId)
+        {
+            return _context.ProjectDocuments.Any(pd => pd.FileID == fileId && pd.TemplateID == templateId);
+        }
+        
         public void SaveChanges()
         {
             _context.SaveChanges();

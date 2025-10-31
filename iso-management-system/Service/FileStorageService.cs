@@ -62,8 +62,11 @@ namespace iso_management_system.Services
             return fileEntity;
             //return FileStorageMapper.ToResponseDTO(fileEntity);
         }
-        
-        
+
+        public FileStorage getFileById(int fileId)
+        {
+            return  _fileStorageRepository.GetById(fileId);
+        }
         
         public FileStorageResponseDTO DeleteFile(int fileId)
         {

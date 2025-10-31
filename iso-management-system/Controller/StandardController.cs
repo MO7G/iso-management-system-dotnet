@@ -144,5 +144,14 @@ namespace iso_management_system.Controllers
 
        
         
+        [HttpDelete("{standardId}/sections/{sectionId}/files/{fileId}")]
+        public async Task<ActionResult<ApiResponseWrapper<object>>> DeleteFileFromSection(int standardId , int sectionId, int fileId)
+        {
+            Console.WriteLine("I am calledh here");
+            await _standardService.DeleteFileFromSectionAsync(fileId, sectionId);
+            return Ok(ApiResponse.Ok<object>(null, "File deleted from section successfully"));
+        }
+        
+        
     }
 }

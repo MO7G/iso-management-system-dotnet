@@ -13,6 +13,7 @@ namespace iso_management_system.Repositories.Interfaces
         void SaveChanges();
         
         IEnumerable<ProjectAssignments> GetAssignmentsByProject(int projectId);
+        void RemoveProjectRole(ProjectRoles role);
 
         
         void AddProjectAssignment(ProjectAssignments assignment);

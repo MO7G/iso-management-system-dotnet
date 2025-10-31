@@ -146,6 +146,44 @@ public class ProjectService
     }
 
     
+    public void UnassignRoleFromProject(ProjectRoleAssignmentDTO dto)
+{
+    // 1️⃣ Validate project exists
+    var project = _projectRepository.GetProjectById(dto.ProjectId!.Value);
+    if (project == null)
+        throw new NotFoundException($"Project with ID {dto.ProjectId} not found.");
+
+    // 2️⃣ Validate user exists
+    var user = _userRepository.GetUserByIdNotTracked(dto.UserId!.Value);
+    if (user == null)
+        throw new NotFoundException($"User with ID {dto.UserId} not found.");
+
+    // 3️⃣ Validate role exists
+    var role = _roleRepository.GetRoleById(dto.RoleId!.Value);
+    if (role == null)
+        throw new NotFoundException($"Role with ID {dto.RoleId} not found.");
+
+    // 4️⃣ Find the assignment for this user in this project
+    var assignment = _projectRepository.GetAssignmentsByProject(dto.ProjectId!.Value)
+        .FirstOrDefault(a => a.UserId == dto.UserId);
+
+    if (assignment == null)
+        throw new BusinessRuleException($"User {dto.UserId} is not assigned to project {dto.ProjectId}.");
+
+    // 5️⃣ Find the specific role to remove
+    var projectRole = _projectRepository.GetProjectRolesByAssignment(assignment.AssignmentId)
+        .FirstOrDefault(r => r.RoleId == dto.RoleId);
+
+    if (projectRole == null)
+        throw new BusinessRuleException($"User {dto.UserId} does not have role {dto.RoleId} in project {dto.ProjectId}.");
+
+    // 6️⃣ Remove the role
+    _projectRepository.RemoveProjectRole(projectRole);
+
+    _projectRepository.SaveChanges();
+}
+
+    
     public async Task<FileStorageResponseDTO> UploadFileForCustomer(int standardId, int sectionId, FileUploadCustomerRequestDTO dto)
 {
     Console.WriteLine("=== Starting UploadFileForCustomer ===");

@@ -28,6 +28,11 @@ namespace iso_management_system.Repositories.Implementations
         {
             return _context.Projects.FirstOrDefault(p => p.ProjectId == projectId);
         }
+        public void RemoveProjectRole(ProjectRoles role)
+        {
+            _context.ProjectRoles.Remove(role);
+            _context.SaveChanges(); // optionally save immediately
+        }
 
         public void AddProjectDocuments(IEnumerable<ProjectDocuments> documents)
         {
