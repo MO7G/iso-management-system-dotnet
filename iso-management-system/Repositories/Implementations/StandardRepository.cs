@@ -49,7 +49,19 @@ namespace iso_management_system.Repositories.Implementations
             
             return exists;
         }
+        
+        
+        public async Task UpdateStandardAsync(Standard standard, CancellationToken cancellationToken = default)
+        {
+            var tracked = _context.Standards.Local.FirstOrDefault(s => s.StandardID == standard.StandardID);
+            if (tracked == null)
+            {
+                _context.Standards.Attach(standard);
+            }
 
+            _context.Entry(standard).State = EntityState.Modified;
+            await _context.SaveChangesAsync(cancellationToken);
+        }
         
         public (bool Exists, bool HasSections, bool HasProjects) GetStandardDeletionStatus(int id)
         {

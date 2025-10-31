@@ -107,6 +107,21 @@ namespace iso_management_system.Controllers
             return Ok(ApiResponse.Ok(sections, "Sections fetched successfully"));
         }
         
+        /// <summary>
+        /// Updates a standard partially.
+        /// </summary>
+        /// <param name="standardId">The ID of the standard to update.</param>
+        /// <param name="dto">Partial update object containing modified fields.</param>
+        /// <returns>Updated standard details.</returns>
+        [HttpPatch("update/{standardId}")]
+        public async Task<ActionResult<ApiResponseWrapper<StandardResponseDTO>>> UpdateStandard(
+            int standardId,
+            [FromBody] StandardUpdateDTO dto)
+        {
+            var updatedStandard = await _standardService.UpdateStandardAsync(standardId, dto);
+            return Ok(ApiResponse.Ok(updatedStandard, "Standard updated successfully"));
+        }
+
         
         // DELETE: api/standard/sections/{sectionId}
         [HttpDelete("{standardId}/sections/{sectionId}")]
@@ -140,6 +155,23 @@ namespace iso_management_system.Controllers
             FileStorageResponseDTO result = await _standardService.UploadFileForUser(standardId, sectionId, dto);
             return CreatedAtAction(nameof(UploadFileForUser),
                 ApiResponse.Created(result, "File uploaded for user successfully"));
+        }
+        
+        
+        
+        /// <summary>
+        /// Updates a section within a standard.
+        /// </summary>
+        /// <param name="sectionId">The ID of the section to update.</param>
+        /// <param name="dto">Partial update object containing modified fields.</param>
+        /// <returns>Updated section details.</returns>
+        [HttpPatch("section/update/{sectionId}")]
+        public async Task<ActionResult<ApiResponseWrapper<StandardSectionResponseDTO>>> UpdateSection(
+            int sectionId,
+            [FromBody] StandardSectionUpdateDTO dto)
+        {
+            var updatedSection = await _standardService.UpdateSectionAsync(sectionId, dto);
+            return Ok(ApiResponse.Ok(updatedSection, "Section updated successfully"));
         }
 
        

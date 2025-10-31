@@ -4,7 +4,9 @@ using System.Linq;
 using iso_management_system.Configurations.Db;
 using iso_management_system.Models;
 using iso_management_system.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;        
+using Microsoft.EntityFrameworkCore;
+
 
 namespace iso_management_system.Repositories.Implementations
 {
@@ -45,6 +47,22 @@ namespace iso_management_system.Repositories.Implementations
         {
             _context.StandardSections.Remove(section);
         }
+
+
+        public async Task UpdateSectionAsync(StandardSection section, CancellationToken cancellationToken = default)
+        {
+            var tracked = _context.StandardSections.Local.FirstOrDefault(s => s.SectionID == section.SectionID);
+            if (tracked == null)
+            {
+                _context.StandardSections.Attach(section);
+            }
+
+            _context.Entry(section).State = EntityState.Modified;
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        
+      
+        
 
         public void SaveChanges()
         {

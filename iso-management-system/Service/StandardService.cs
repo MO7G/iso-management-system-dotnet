@@ -210,6 +210,26 @@ namespace iso_management_system.Services
             var dto = StandardMapper.ToSectionResponseDTO(section);
             return dto;
         }
+        public async Task<StandardResponseDTO> UpdateStandardAsync(int standardId, StandardUpdateDTO dto)
+        {
+            var standard = _standardRepository.GetStandardById(standardId);
+            if (standard == null)
+                throw new NotFoundException($"Standard with ID {standardId} not found.");
+
+            // Apply partial updates only if explicitly requested
+            if (dto is { NameHasValue: true })
+                standard.Name= dto.Name;
+
+            if (dto is { VersionHasValue: true })
+                standard.Version = dto.Version;
+
+            // Track modification
+            standard.ModifiedAt = DateTime.UtcNow;
+
+            await _standardRepository.UpdateStandardAsync(standard);
+
+            return StandardMapper.ToResponseDTO(standard);
+        }
 
         public async Task DeleteSectionAsync(int sectionId)
         {
@@ -314,7 +334,27 @@ namespace iso_management_system.Services
         
         
         
-        
+        public async Task<StandardSectionResponseDTO> UpdateSectionAsync(int sectionId, StandardSectionUpdateDTO dto)
+        {
+            var section = _standardSectionRepository.GetSectionById(sectionId);
+            if (section == null)
+                throw new NotFoundException($"Section with ID {sectionId} not found.");
+
+            // Apply changes only when HasValue == true
+            if (dto is { TitleHasValue: true, Title: not null })
+                section.Title = dto.Title;
+
+            if (dto is { NumberHasValue: true, Number: not null })
+                section.Number = dto.Number;
+            
+            // Update modification time
+            section.ModifiedAt = DateTime.UtcNow;
+
+            await _standardSectionRepository.UpdateSectionAsync(section);
+
+            return StandardMapper.ToSectionResponseDTO(section);
+        }
+
         public async Task DeleteFileFromSectionAsync(int fileId, int sectionId)
         {
             // === 1️⃣ VALIDATION PHASE (outside the transaction) ===

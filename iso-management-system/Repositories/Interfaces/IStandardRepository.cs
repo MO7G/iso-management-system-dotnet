@@ -12,6 +12,7 @@ namespace iso_management_system.Repositories.Interfaces
 
         public (bool Exists, bool HasSections, bool HasProjects) GetStandardDeletionStatus(int id);
         bool IsStandardUsedInAnyProject(int standardId);
+        Task UpdateStandardAsync(Standard standard, CancellationToken cancellationToken = default);
 
         bool StandardNameExists(string name);
 
