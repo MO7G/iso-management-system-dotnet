@@ -9,9 +9,13 @@ public class PaginationModelBinder : IModelBinder
 {
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
+        
+        // in .net we use the valueProvider to read the values coming the request !!
         var pageNumberValue = bindingContext.ValueProvider.GetValue("pageNumber").FirstValue;
         var pageSizeValue = bindingContext.ValueProvider.GetValue("pageSize").FirstValue;
 
+        
+        // parsing string to int here 
         int.TryParse(pageNumberValue, out var pageNumber);
         int.TryParse(pageSizeValue, out var pageSize);
 
@@ -29,8 +33,12 @@ public class PaginationModelBinder : IModelBinder
             PageNumber = pageNumber,
             PageSize = pageSize
         };
-
+        
+        
+        // mark the binding as successful and assign the resulting object.
         bindingContext.Result = ModelBindingResult.Success(pagination);
+        
+        // Binding is synchronous so return a completed task
         return Task.CompletedTask;
     }
 }

@@ -3,23 +3,28 @@
 using System;
 using iso_management_system.Configurations.Db;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 public static class DbContextExtensions
 {
+    
+    // An extension method that pretends to be a method from teh AppDbContext but as a helper here 
     public static void EnsureConnection(this AppDbContext db)
     {
+        var logger = db.GetService<ILoggerFactory>()?.CreateLogger("DatabaseCheck");
+
         try
         {
             db.Database.OpenConnection();
             db.Database.CloseConnection();
-            Console.WriteLine("-------------Database connection successful-------------");
+            logger?.LogInformation(" Database connection successful.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"----------Database connection failed: {ex.Message}");
-           throw;
+            logger?.LogError(ex, "Database connection failed: {Message}", ex.Message);
+            throw;
         }
     }
 }
 
-// Usage in Program.cs
+
