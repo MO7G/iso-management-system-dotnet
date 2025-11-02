@@ -11,9 +11,7 @@ namespace iso_management_system.Configurations.Db
         {
         }
 
-        // -----------------------------
-        // DbSets for main entities
-        // -----------------------------
+        
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
@@ -26,9 +24,7 @@ namespace iso_management_system.Configurations.Db
         public DbSet<StandardSection> StandardSections { get; set; }
         public DbSet<StandardTemplate> StandardTemplates { get; set; }
 
-        // -----------------------------
-        // DbSets for join entities
-        // -----------------------------
+        
         public DbSet<DocumentRevision> DocumentRevisions { get; set; }
         public DbSet<ProjectDocuments> ProjectDocuments { get; set; }
         public DbSet<ProjectRoles> ProjectRoles { get; set; }
@@ -38,9 +34,7 @@ namespace iso_management_system.Configurations.Db
         {
             base.OnModelCreating(modelBuilder);
 
-            // -----------------------------
-            // Apply configurations for main entities
-            // -----------------------------
+           
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
             modelBuilder.ApplyConfiguration(new PermissionConfiguration());
@@ -53,9 +47,7 @@ namespace iso_management_system.Configurations.Db
             modelBuilder.ApplyConfiguration(new StandardSectionConfiguration());
             modelBuilder.ApplyConfiguration(new StandardTemplateConfiguration());
 
-            // -----------------------------
-            // Apply configurations for join entities
-            // -----------------------------
+           
             modelBuilder.ApplyConfiguration(new DocumentRevisionConfiguration());
             modelBuilder.ApplyConfiguration(new ProjectDocumentsConfiguration());
             modelBuilder.ApplyConfiguration(new ProjectRolesConfiguration());
